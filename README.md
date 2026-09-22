@@ -37,5 +37,7 @@ ECC item may duplicate a local skill or agent.
 
 ## Update Matt Pocock's skills
 
-Run `update-mattpocock-skills.sh` on one laptop, commit, push. Do not run it
-on each laptop separately.
+They are installed flat, one folder per skill under `skills/`, and carry local
+edits marked `<!-- LOCAL INTEGRATION -->`. `skills/UPSTREAM.md` records the
+upstream commit each one is synced to and every local edit. Sync on one laptop,
+update that file, commit, push. Do not sync on each laptop separately.

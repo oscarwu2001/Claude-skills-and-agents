@@ -1,4 +1,23 @@
 {
+  "enabledPlugins": {
+    "mattpocock-skills@claude-plugins-official": true,
+    "interfaces@interfaces": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "interfaces": {
+      "source": {
+        "source": "github",
+        "repo": "jakubkrehel/skills"
+      }
+    }
+  },
   "effortLevel": "high",
-  "model": "claude-fable-5-1[1m]"
+  "model": "claude-fable-5-1[1m]",
+  "autoUpdatesChannel": "latest"
 }

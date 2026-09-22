@@ -8,16 +8,13 @@
 !settings.json
 !agents/
 !agents/**
-!skills/
-!skills/graphify/
-!skills/graphify/**
-!skills/system-map/
-!skills/system-map/**
-!skills/ecc/
-!skills/ecc/**
-!skills/mattpocock-skills/
-!skills/mattpocock-skills/**
 !ecc-library
+
+# Skills: every installed skill is portable, so the folder is tracked whole,
+# except what Claude Code manages itself and syncs per account.
+!skills/
+!skills/**
+skills/synced/
 
 # Never, even inside the allowed folders.
 **/__pycache__/

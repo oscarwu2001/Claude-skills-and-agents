@@ -1,0 +1,3 @@
+interface:
+  display_name: "Graphify"
+  short_description: "Any input to a queryable knowledge graph"
