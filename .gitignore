@@ -1,0 +1,25 @@
+# Allowlist: everything in ~/.claude is private by default.
+# Only the portable configuration below is tracked.
+*
+!.gitignore
+!.gitmodules
+!README.md
+!CLAUDE.md
+!settings.json
+!agents/
+!agents/**
+!skills/
+!skills/graphify/
+!skills/graphify/**
+!skills/system-map/
+!skills/system-map/**
+!skills/ecc/
+!skills/ecc/**
+!skills/mattpocock-skills/
+!skills/mattpocock-skills/**
+!ecc-library
+
+# Never, even inside the allowed folders.
+**/__pycache__/
+**/*.local.json
+**/.provenance.json

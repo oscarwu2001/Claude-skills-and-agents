@@ -1,0 +1,4 @@
+[submodule "ecc-library"]
+	path = ecc-library
+	url = https://github.com/affaan-m/ecc.git
+	shallow = true

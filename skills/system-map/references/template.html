@@ -1,0 +1,427 @@
+<title>System Map Template</title>
+<!--
+  TEMPLATE — adapt, do not publish as-is.
+
+  Fill in: LANES, NODES, EDGES, and the header text.
+  Do NOT hand-author coordinates: lane + row -> x,y is computed in layout().
+
+  Node kinds:   primary | normal | external | proposed | problem
+  Edge kinds:   solid (verified) | dashed (inferred/proposed) | strong (emphasis)
+
+  Palette and type here are placeholders. Load `artifact-design` and replace
+  them with something specific to the subject.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+  :root {
+    --ground:  #eef1f3;
+    --surface: #ffffff;
+    --sunken:  #e4e9ec;
+    --ink:     #151a1d;
+    --muted:   #5b666d;
+    --faint:   #86959c;
+    --line:    #ccd4d9;
+    --rule:    #b2bec5;
+    --accent:  #0d6b74;
+    --accent-soft: #d6e8ea;
+    --warn:    #9a6a12;
+    --warn-soft: #f3e8cd;
+    --bad:     #9e3627;
+    --bad-soft: #f5ddd8;
+    --shadow:  0 1px 2px rgba(20,24,27,.07);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:#0d1113; --surface:#161b1e; --sunken:#1c2327; --ink:#e5ebee;
+      --muted:#9ba8af; --faint:#75848c; --line:#2b3439; --rule:#3b474d;
+      --accent:#4ec4cf; --accent-soft:#143a40;
+      --warn:#d6a747; --warn-soft:#3a2e12;
+      --bad:#e2897a;  --bad-soft:#3d1f19;
+      --shadow:0 1px 2px rgba(0,0,0,.45); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#0d1113; --surface:#161b1e; --sunken:#1c2327; --ink:#e5ebee;
+    --muted:#9ba8af; --faint:#75848c; --line:#2b3439; --rule:#3b474d;
+    --accent:#4ec4cf; --accent-soft:#143a40;
+    --warn:#d6a747; --warn-soft:#3a2e12;
+    --bad:#e2897a;  --bad-soft:#3d1f19;
+    --shadow:0 1px 2px rgba(0,0,0,.45); color-scheme: dark;
+  }
+
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 22px 64px;
+          display: flex; flex-direction: column; gap: 22px; }
+
+  h1 { font-size: clamp(25px,3.6vw,34px); line-height:1.1; font-weight:700;
+       letter-spacing:-.015em; margin:0; text-wrap:balance; }
+  .eyebrow { font-size:11.5px; font-weight:600; letter-spacing:.13em;
+             text-transform:uppercase; color:var(--accent); margin:0 0 10px; }
+  .standfirst { font-size:17px; color:var(--muted); margin:12px 0 0; max-width:62ch; }
+  .meta { font-size:12.5px; color:var(--faint); margin:10px 0 0;
+          font-variant-numeric:tabular-nums; }
+  .mono { font-family:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+          font-size:.88em; font-variant-numeric:tabular-nums; }
+
+  /* ---- controls ---- */
+  .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .chip {
+    font:inherit; font-size:12.5px; font-weight:500;
+    background:var(--surface); color:var(--muted);
+    border:1px solid var(--line); border-radius:2px;
+    padding:5px 11px; cursor:pointer;
+  }
+  .chip[aria-pressed="true"] { background:var(--accent-soft); color:var(--accent);
+                               border-color:var(--accent); }
+  .chip:focus-visible, #q:focus-visible, .node:focus-visible
+    { outline:2px solid var(--accent); outline-offset:2px; }
+  #q {
+    font:inherit; font-size:13px; background:var(--surface); color:var(--ink);
+    border:1px solid var(--line); border-radius:2px; padding:6px 10px;
+    min-width:190px;
+  }
+  #q::placeholder { color:var(--faint); }
+
+  /* ---- map + panel ---- */
+  .stage { display:grid; gap:16px; grid-template-columns:minmax(0,1fr) 290px; align-items:start; }
+  @media (max-width:900px) { .stage { grid-template-columns:minmax(0,1fr); } }
+
+  .mapbox {
+    background:var(--surface); border:1px solid var(--line); border-radius:3px;
+    box-shadow:var(--shadow); padding:14px; overflow-x:auto;
+  }
+  svg#map { display:block; width:100%; min-width:680px; height:auto; }
+
+  .node rect { fill:var(--surface); stroke:var(--rule); stroke-width:1.2; }
+  .node text.label { font-size:12.5px; font-weight:600; fill:var(--ink); }
+  .node text.sub   { font-size:10.5px; fill:var(--muted); }
+  .node { cursor:pointer; }
+  .node:hover rect, .node[aria-current="true"] rect { stroke:var(--accent); stroke-width:2; }
+
+  .k-primary  rect { fill:var(--accent-soft); stroke:var(--accent); }
+  .k-external rect { stroke-dasharray:4 3; }
+  .k-proposed rect { fill:var(--warn-soft); stroke:var(--warn); stroke-dasharray:5 3; }
+  .k-problem  rect { fill:var(--bad-soft);  stroke:var(--bad); }
+
+  .edge { stroke:var(--rule); stroke-width:1.4; fill:none; }
+  .edge.dashed { stroke-dasharray:5 4; }
+  .edge.strong { stroke:var(--accent); stroke-width:2; }
+  .edgelabel { font-size:10.5px; fill:var(--muted); }
+
+  .dim { opacity:.16; }
+  .lanehead { font-size:10.5px; font-weight:600; letter-spacing:.1em;
+              text-transform:uppercase; fill:var(--faint); }
+  .lanebox { fill:none; stroke:var(--line); stroke-width:1; stroke-dasharray:2 4; }
+
+  @media (prefers-reduced-motion:no-preference) {
+    .node rect, .edge, .node text { transition:opacity .16s ease, stroke .16s ease; }
+  }
+
+  /* ---- detail panel ---- */
+  .panel {
+    background:var(--surface); border:1px solid var(--line); border-radius:3px;
+    padding:16px 17px; box-shadow:var(--shadow); position:sticky; top:16px;
+  }
+  .panel h2 { font-size:16px; font-weight:700; margin:0 0 3px; }
+  .panel .where { font-size:12px; color:var(--faint); margin:0 0 10px; }
+  .panel p.note { font-size:13.5px; color:var(--muted); margin:0 0 12px; }
+  .panel h3 { font-size:10.5px; font-weight:600; letter-spacing:.1em;
+              text-transform:uppercase; color:var(--faint); margin:12px 0 5px; }
+  .panel ul { margin:0; padding:0; list-style:none; }
+  .panel li { font-size:13px; padding:3px 0; border-bottom:1px solid var(--line); }
+  .panel li:last-child { border-bottom:none; }
+  .panel li .verb { color:var(--accent); font-size:11.5px; }
+  .empty { color:var(--faint); font-size:13.5px; }
+
+  .legend { display:flex; flex-wrap:wrap; gap:16px; font-size:12.5px; color:var(--muted); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .sw { width:20px; height:11px; border:1px solid var(--rule); display:inline-block; }
+  .sw.p { background:var(--accent-soft); border-color:var(--accent); }
+  .sw.x { border-style:dashed; }
+  .sw.n { background:var(--warn-soft); border-color:var(--warn); border-style:dashed; }
+  .sw.b { background:var(--bad-soft); border-color:var(--bad); }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">PROJECT · system map</p>
+    <h1>Replace with the map's real name</h1>
+    <p class="standfirst">One sentence saying what this map lets the reader see.</p>
+    <p class="meta">Source: <span class="mono">graphify-out/graph.json</span> @ <span class="mono">abc1234</span> · N nodes shown of M · state freshness here</p>
+  </header>
+
+  <div class="controls">
+    <input id="q" type="search" placeholder="Search nodes…" aria-label="Search nodes">
+    <span id="lanechips"></span>
+    <button class="chip" id="reset" type="button">Reset</button>
+  </div>
+
+  <div class="stage">
+    <div class="mapbox">
+      <svg id="map" role="img" aria-label="Describe the whole map here for screen readers: the lanes, the main path through them, and what the emphasised nodes are."></svg>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite">
+      <p class="empty">Select a node to see what it is and what touches it.</p>
+    </aside>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw p"></i> primary</span>
+    <span><i class="sw"></i> component</span>
+    <span><i class="sw x"></i> external</span>
+    <span><i class="sw n"></i> proposed</span>
+    <span><i class="sw b"></i> problem</span>
+  </div>
+</div>
+
+<script>
+/* ============================ DATA — fill this in ============================ */
+
+/* Lanes are columns, left to right. Name them something true. */
+const LANES = [
+  { id: "in",   name: "Ingest" },
+  { id: "core", name: "Core" },
+  { id: "out",  name: "Delivered" },
+];
+
+/* row = vertical slot within the lane (0-based). kind styles the box.
+   file/note/sub are optional and feed the detail panel. */
+const NODES = [
+  { id:"a", label:"Source",    sub:"12 files",  lane:"in",   row:0, kind:"external", note:"Where the data comes from.", file:"src/in.py:L1" },
+  { id:"b", label:"Parser",    sub:"",          lane:"in",   row:1, kind:"normal",   note:"" },
+  { id:"c", label:"Transform", sub:"the seam",  lane:"core", row:0, kind:"primary",  note:"The function everything crosses.", file:"src/core.py:L70" },
+  { id:"d", label:"Store",     sub:"",          lane:"core", row:1, kind:"normal",   note:"" },
+  { id:"e", label:"Report",    sub:"",          lane:"out",  row:0, kind:"normal",   note:"" },
+  { id:"f", label:"Cache",     sub:"proposed",  lane:"out",  row:1, kind:"proposed", note:"Not built yet." },
+];
+
+/* Every edge needs a verb. kind: "" | "dashed" | "strong" */
+const EDGES = [
+  { from:"a", to:"b", verb:"reads",       kind:"" },
+  { from:"b", to:"c", verb:"calls",       kind:"strong" },
+  { from:"c", to:"d", verb:"writes",      kind:"" },
+  { from:"d", to:"e", verb:"renders",     kind:"" },
+  { from:"c", to:"f", verb:"would fill",  kind:"dashed" },
+];
+
+/* ========================== LAYOUT — leave this alone ======================== */
+
+const NW = 168, NH = 54, LANE_GAP = 78, ROW_GAP = 34, PAD = 22, HEAD = 30;
+
+function layout() {
+  const laneIndex = {};
+  LANES.forEach((l, i) => laneIndex[l.id] = i);
+  const maxRow = Math.max(...NODES.map(n => n.row)) + 1;
+
+  NODES.forEach(n => {
+    n.x = PAD + laneIndex[n.lane] * (NW + LANE_GAP);
+    n.y = PAD + HEAD + n.row * (NH + ROW_GAP);
+  });
+
+  const W = PAD * 2 + LANES.length * NW + (LANES.length - 1) * LANE_GAP;
+  const H = PAD * 2 + HEAD + maxRow * NH + (maxRow - 1) * ROW_GAP;
+  return { W, H, laneIndex, maxRow };
+}
+
+const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+const SVGNS = "http://www.w3.org/2000/svg";
+const el = (t, a = {}) => {
+  const e = document.createElementNS(SVGNS, t);
+  for (const k in a) e.setAttribute(k, a[k]);
+  return e;
+};
+
+/* Orthogonal-ish route: straight when aligned, elbowed bezier otherwise. */
+function routePath(s, t) {
+  const sx = s.x + NW, sy = s.y + NH / 2;
+  const tx = t.x,      ty = t.y + NH / 2;
+  if (Math.abs(t.x - s.x) < 1) {         // same lane: straight vertical
+    const x = s.x + NW / 2;
+    return t.y > s.y ? `M ${x} ${s.y + NH} V ${t.y}` : `M ${x} ${s.y} V ${t.y + NH}`;
+  }
+  if (t.x < s.x) {                       // right-to-left: loop under
+    const y = Math.max(sy, ty) + NH / 2 + 14;
+    return `M ${s.x + NW / 2} ${s.y + NH} V ${y} H ${t.x + NW / 2} V ${t.y + NH}`;
+  }
+  if (Math.abs(sy - ty) < 2) return `M ${sx} ${sy} H ${tx}`;
+  const mx = sx + (tx - sx) / 2;
+  return `M ${sx} ${sy} C ${mx} ${sy} ${mx} ${ty} ${tx} ${ty}`;
+}
+
+function midOf(s, t) {
+  const sx = s.x + NW, sy = s.y + NH / 2, tx = t.x, ty = t.y + NH / 2;
+  if (Math.abs(t.x - s.x) < 1) {         // same lane: label beside the line
+    const upper = Math.min(s.y, t.y), lower = Math.max(s.y, t.y);
+    return { x: s.x + NW / 2 + 40, y: (upper + NH + lower) / 2 + 4 };
+  }
+  if (t.x < s.x) return { x: (s.x + t.x) / 2 + NW / 2, y: Math.max(sy, ty) + NH / 2 + 10 };
+  return { x: (sx + tx) / 2, y: (sy + ty) / 2 - 5 };
+}
+
+function render() {
+  const { W, H, laneIndex, maxRow } = layout();
+  const svg = document.getElementById("map");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.textContent = "";
+
+  const defs = el("defs");
+  for (const [id, col] of [["ar", "var(--rule)"], ["ars", "var(--accent)"]]) {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: "9", refY: "5",
+      markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
+    m.appendChild(el("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: col }));
+    defs.appendChild(m);
+  }
+  svg.appendChild(defs);
+
+  LANES.forEach((l, i) => {
+    const x = PAD + i * (NW + LANE_GAP);
+    svg.appendChild(el("rect", { class: "lanebox", x: x - 10, y: PAD + HEAD - 12,
+      width: NW + 20, height: H - PAD - HEAD, rx: 2 }));
+    const t = el("text", { class: "lanehead", x: x, y: PAD + 12 });
+    t.textContent = l.name.toUpperCase();
+    svg.appendChild(t);
+  });
+
+  const gE = el("g", { id: "edges" });
+  EDGES.forEach((e, i) => {
+    const s = byId[e.from], t = byId[e.to];
+    if (!s || !t) return;
+    const p = el("path", {
+      class: "edge " + (e.kind || ""), d: routePath(s, t),
+      "marker-end": e.kind === "strong" ? "url(#ars)" : "url(#ar)",
+      "data-edge": i, "data-from": e.from, "data-to": e.to,
+    });
+    p.appendChild(el("title")).textContent = `${s.label} ${e.verb} ${t.label}`;
+    gE.appendChild(p);
+    const m = midOf(s, t);
+    const lb = el("text", { class: "edgelabel", x: m.x, y: m.y,
+      "text-anchor": "middle", "data-edge": i });
+    lb.textContent = e.verb;
+    gE.appendChild(lb);
+  });
+  svg.appendChild(gE);
+
+  const gN = el("g", { id: "nodes" });
+  NODES.forEach((n, i) => {
+    const g = el("g", { class: `node k-${n.kind || "normal"}`, "data-id": n.id,
+      tabindex: "0", role: "button",
+      "aria-label": `${n.label}${n.sub ? ", " + n.sub : ""}` });
+    g.appendChild(el("rect", { x: n.x, y: n.y, width: NW, height: NH, rx: 2 }));
+    const lb = el("text", { class: "label", x: n.x + 12, y: n.y + (n.sub ? 23 : 31) });
+    lb.textContent = n.label;
+    g.appendChild(lb);
+    if (n.sub) {
+      const sb = el("text", { class: "sub", x: n.x + 12, y: n.y + 39 });
+      sb.textContent = n.sub;
+      g.appendChild(sb);
+    }
+    gN.appendChild(g);
+  });
+  svg.appendChild(gN);
+}
+
+/* ========================== INTERACTION ========================== */
+
+let selected = null;
+const activeLanes = new Set(LANES.map(l => l.id));
+
+function neighbours(id) {
+  const ins = [], outs = [];
+  EDGES.forEach(e => {
+    if (e.from === id && byId[e.to])   outs.push({ verb: e.verb, node: byId[e.to] });
+    if (e.to === id   && byId[e.from]) ins.push({ verb: e.verb, node: byId[e.from] });
+  });
+  return { ins, outs };
+}
+
+function showPanel(id) {
+  const p = document.getElementById("panel");
+  if (!id) {
+    p.innerHTML = '<p class="empty">Select a node to see what it is and what touches it.</p>';
+    return;
+  }
+  const n = byId[id], { ins, outs } = neighbours(id);
+  const list = (items, dir) => items.length
+    ? `<ul>${items.map(x => `<li><span class="verb">${dir} ${x.verb}</span> ${x.node.label}</li>`).join("")}</ul>`
+    : '<p class="empty">None.</p>';
+  p.innerHTML = `
+    <h2>${n.label}</h2>
+    <p class="where">${n.file ? `<span class="mono">${n.file}</span>` : (n.sub || "")}</p>
+    ${n.note ? `<p class="note">${n.note}</p>` : ""}
+    <h3>Depends on</h3>${list(ins, "←")}
+    <h3>Used by</h3>${list(outs, "→")}`;
+}
+
+function applyFilters() {
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const near = new Set();
+  if (selected) {
+    near.add(selected);
+    EDGES.forEach(e => {
+      if (e.from === selected) near.add(e.to);
+      if (e.to === selected)   near.add(e.from);
+    });
+  }
+  document.querySelectorAll(".node").forEach(g => {
+    const id = g.dataset.id, n = byId[id];
+    let on = activeLanes.has(n.lane);
+    if (on && q) on = (n.label + " " + (n.sub || "") + " " + (n.file || "")).toLowerCase().includes(q);
+    if (on && selected) on = near.has(id);
+    g.classList.toggle("dim", !on);
+    g.setAttribute("aria-current", String(id === selected));
+  });
+  document.querySelectorAll("[data-edge]").forEach(p => {
+    const e = EDGES[+p.dataset.edge];
+    let on = activeLanes.has(byId[e.from].lane) && activeLanes.has(byId[e.to].lane);
+    if (on && selected) on = (e.from === selected || e.to === selected);
+    p.classList.toggle("dim", !on);
+  });
+}
+
+function select(id) { selected = (selected === id) ? null : id; showPanel(selected); applyFilters(); }
+
+function wire() {
+  const chips = document.getElementById("lanechips");
+  LANES.forEach(l => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = l.name;
+    b.setAttribute("aria-pressed", "true");
+    b.addEventListener("click", () => {
+      const on = b.getAttribute("aria-pressed") === "true";
+      b.setAttribute("aria-pressed", String(!on));
+      on ? activeLanes.delete(l.id) : activeLanes.add(l.id);
+      applyFilters();
+    });
+    chips.appendChild(b);
+  });
+
+  document.querySelectorAll(".node").forEach(g => {
+    g.addEventListener("click", () => select(g.dataset.id));
+    g.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(g.dataset.id); }
+      if (ev.key === "Escape") { selected = null; showPanel(null); applyFilters(); }
+    });
+  });
+
+  document.getElementById("q").addEventListener("input", applyFilters);
+  document.getElementById("reset").addEventListener("click", () => {
+    selected = null;
+    document.getElementById("q").value = "";
+    activeLanes.clear(); LANES.forEach(l => activeLanes.add(l.id));
+    document.querySelectorAll("#lanechips .chip").forEach(c => c.setAttribute("aria-pressed", "true"));
+    showPanel(null); applyFilters();
+  });
+}
+
+render();
+wire();
+applyFilters();
+</script>
