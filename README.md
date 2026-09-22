@@ -18,6 +18,22 @@ git clone --recurse-submodules --shallow-submodules https://github.com/oscarwu20
 If `~/.claude` already exists, clone elsewhere, then move `.git`, `.gitignore`,
 `.gitmodules` and the tracked files in, and run `git submodule update --init`.
 
+## WSL on the same laptop
+
+The Windows checkout is the only configuration. WSL's Claude Code reads
+`/home/<name>/.claude` instead, so link it across once:
+
+```bash
+bash /mnt/c/Users/<name>/.claude/wsl-link.sh
+```
+
+Then add a `SessionStart` hook running `bash ~/.claude/wsl-link.sh` to WSL's own
+`~/.claude/settings.json`, so new skills and projects are linked every session.
+The script links agents, skills, `CLAUDE.md`, `ecc-library`, the observation log
+and each Windows-drive project's auto-memory; its header says what stays
+per-install and why. For graphify, put a wrapper at `~/.local/bin/graphify`
+that runs `exec graphify.exe "$@"` rather than installing a second copy.
+
 ## Keep laptops in sync
 
 ```bash

@@ -3,7 +3,9 @@
 *
 !.gitignore
 !.gitmodules
+!.gitattributes
 !README.md
+!wsl-link.sh
 !CLAUDE.md
 !settings.json
 !agents/
