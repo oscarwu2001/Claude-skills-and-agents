@@ -52,16 +52,18 @@ to always-on is a decision the user makes.
 
 | Wanted from ECC | Use instead |
 | --- | --- |
-| `tdd-workflow`, `tdd-guide`, `python-testing` | `mattpocock-skills:tdd`, plus the project's test rules in `CLAUDE.md` |
+| `tdd-workflow`, `tdd-guide`, `python-testing` | `tdd`, plus the project's test rules in `CLAUDE.md` |
 | `code-reviewer`, `python-reviewer`, `code-review`, `verification-loop`, `delivery-gate`, `santa-method` | the `reviewer` subagent, `/code-review` |
-| `planner`, `architect`, `code-architect`, `plan`, `plan-orchestrate` | the `Plan` agent, `mattpocock-skills:to-spec`, `to-tickets`, `wayfinder` |
-| `code-explorer`, `codebase-onboarding`, `code-tour`, `repo-scan` | `graphify`, the `Explore` agent, `system-map` |
+| `planner`, `architect`, `code-architect`, `plan`, `plan-orchestrate` | the `Plan` agent, `to-spec`, `to-tickets`, `wayfinder` |
+| `code-explorer`, `codebase-onboarding`, `code-tour`, `repo-scan` | `graphify`, the `Explore` agent, `system-map`, `archify` |
 | `code-simplifier`, `refactor-cleaner` | `/simplify` |
 | `security-reviewer`, `security-review`, `security-scan` | `/security-review` |
-| `deep-research`, `research-ops`, `exa-search`, `literature-review` | `mattpocock-skills:research`, `anthropic-skills:deep-research` |
-| `council`, `dev-team` | `mattpocock-skills:grilling` |
-| `continuous-learning*`, `unified-memory`, `ck`, `save-session`, `growth-log` | the built-in auto-memory (`MEMORY.md`) |
-| `architecture-decision-records` | `mattpocock-skills:domain-modeling` and the repo's `docs/adr/` |
+| `deep-research`, `research-ops`, `exa-search`, `literature-review` | `research`, `anthropic-skills:deep-research` |
+| `council`, `dev-team` | `grilling` |
+| `continuous-learning*`, `unified-memory`, `ck`, `save-session`, `growth-log` | the built-in auto-memory (`MEMORY.md`); for skill-improvement signals, `task-observer` |
+| `skill-stocktake` | `task-observer`'s weekly review, `writing-great-skills` |
+| `design-system` (auditing), `accessibility`, `frontend-a11y`, `a11y-architect` | the `ui-reviewer` subagent, plus `qt-interface` in a Qt project |
+| `architecture-decision-records` | `domain-modeling` and the repo's `docs/adr/` |
 | `documentation-lookup`, `docs-lookup` | the Claude Docs connector, `claude-api` skill |
 | `terminal-ops`, any "run the tests" agent | the `runner` subagent |
 | `silent-failure-hunter` | installed as-is at `~/.claude/agents/silent-failure-hunter.md` |

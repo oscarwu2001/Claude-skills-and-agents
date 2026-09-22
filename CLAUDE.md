@@ -42,7 +42,9 @@ tagged to that skill. Apply their insights to the current work, even if
 the skill file hasn't been updated yet.
 
 The observation log lives at:
-  C:/Users/user/.claude/skill-observations/observation-log/
+  skill-observations/observation-log/ inside the user-level .claude
+  folder that holds this CLAUDE.md -- on Windows %USERPROFILE%/.claude,
+  which WSL reaches as /mnt/c/Users/<name>/.claude, NOT /home/<name>/.claude.
 Use that path. Never resolve the workspace from the current working
 directory — a cwd inside an ephemeral checkout (a git worktree, a temporary
 clone) is torn down and takes the log with it. Never place the workspace

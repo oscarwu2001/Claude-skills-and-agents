@@ -60,7 +60,9 @@ refers to it, means that directory.
 <!-- LOCAL INTEGRATION — install-specific anchoring and provenance rules. -->
 ## This install
 
-- **Workspace (pinned):** `C:/Users/user/.claude/skill-observations/` — one
+- **Workspace (pinned):** `skill-observations/` in the Windows user-level
+  `.claude` folder (`%USERPROFILE%/.claude`; from WSL `/mnt/c/Users/<name>/.claude`,
+  never `/home/<name>/.claude`), the folder holding the global CLAUDE.md — one
   global path, because every skill here is installed globally under
   `~/.claude/skills/`. Never derive it from the cwd or a project directory.
 - **Provenance discipline:** most skills here are editable copies of
