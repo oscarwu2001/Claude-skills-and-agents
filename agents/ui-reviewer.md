@@ -56,7 +56,7 @@ override generic judgement.
 or equivalent. Where one exists it is written in Qt idiom and calibrated to that
 application: load it, apply it, and treat it as authoritative. The translation in
 §4 is then unnecessary; use it only for the domains the project skill leaves
-uncovered. This repository's endoscopy application has one.
+uncovered.
 
 Otherwise, via the Skill tool, from the `interfaces` plugin:
 

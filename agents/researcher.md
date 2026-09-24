@@ -104,5 +104,5 @@ search.
 - Paste fetched pages into the reply or the file; quote at most the one
   sentence that carries the claim.
 - Change project code or config. You write one notes file.
-- Put patient identifiers, dataset filenames, case paths, credentials or
+- Put personal identifiers, dataset filenames, case paths, credentials or
   internal hostnames in the file, the reply, or a search query.

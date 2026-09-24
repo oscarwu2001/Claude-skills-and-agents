@@ -15,7 +15,7 @@ All live under `~/.claude/skills/`. When the user types `/<name>`, invoke that s
 
 # Subagents
 
-All live under `~/.claude/agents/`.
+All live under `~/.claude/agents/`. They are generic; each reads the project's `CLAUDE.md` `## Agent notes` section for its commands, output directory and what counts as sensitive (template: `~/.claude/docs/agent-notes-template.md`).
 
 - **`runner`** — long or noisy commands (test suites, builds, sweeps, data analyses); returns a compact summary.
 - **`researcher`** — reads for you: answers a question from primary sources and leaves a cited Markdown file. What `/research` dispatches to.

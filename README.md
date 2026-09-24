@@ -38,6 +38,13 @@ and each Windows-drive project's auto-memory; its header says what stays
 per-install and why. For graphify, put a wrapper at `~/.local/bin/graphify`
 that runs `exec graphify.exe "$@"` rather than installing a second copy.
 
+## Per-project agent notes
+
+The agents are generic. Give each project an `## Agent notes` section in its
+`CLAUDE.md` naming its commands, output directory and sensitive data; the
+template and the spine/C-arm projects' filled-in block are in
+`docs/agent-notes-template.md`.
+
 ## Keep laptops in sync
 
 ```bash
