@@ -1,7 +1,8 @@
 # Claude skills and agents
 
 Portable Claude Code configuration: `CLAUDE.md`, `settings.json`, the
-user-level subagents in `agents/`, the skills in `skills/`, and the ECC
+user-level subagents in `agents/`, the skills in `skills/`, the hooks in
+`hooks/`, and the ECC
 catalogue as a submodule in `ecc-library/` (unloaded; reached through the
 `ecc` router skill).
 
@@ -27,12 +28,22 @@ The Windows checkout is the only configuration. WSL's Claude Code reads
 bash /mnt/c/Users/<name>/.claude/wsl-link.sh
 ```
 
-Then add a `SessionStart` hook running `bash ~/.claude/wsl-link.sh` to WSL's own
-`~/.claude/settings.json`, so new skills and projects are linked every session.
-The script links agents, skills, `CLAUDE.md`, `ecc-library`, the observation log
+Then add one `SessionStart` hook to WSL's own `~/.claude/settings.json` with
+the command `bash ~/.claude/wsl-link.sh; bash ~/.claude/hooks/observer-brief.sh`
+— one command, because separate hooks run in parallel and the brief needs the
+links. The first links new skills and projects every session; the second is the
+task-observer brief (the Windows entry is in the tracked `settings.json`). The script links agents, skills, hooks, `CLAUDE.md`,
+`ecc-library`, the observation log
 and each Windows-drive project's auto-memory; its header says what stays
 per-install and why. For graphify, put a wrapper at `~/.local/bin/graphify`
 that runs `exec graphify.exe "$@"` rather than installing a second copy.
+
+## Per-project agent notes
+
+The agents are generic. Give each project an `## Agent notes` section in its
+`CLAUDE.md` naming its commands, output directory and sensitive data; the
+template and the spine/C-arm projects' filled-in block are in
+`docs/agent-notes-template.md`.
 
 ## Keep laptops in sync
 

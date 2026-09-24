@@ -58,7 +58,7 @@ to always-on is a decision the user makes.
 | `code-explorer`, `codebase-onboarding`, `code-tour`, `repo-scan` | `graphify`, the `Explore` agent, `system-map`, `archify` |
 | `code-simplifier`, `refactor-cleaner` | `/simplify` |
 | `security-reviewer`, `security-review`, `security-scan` | `/security-review` |
-| `deep-research`, `research-ops`, `exa-search`, `literature-review` | `research`, `anthropic-skills:deep-research` |
+| `deep-research`, `research-ops`, `exa-search`, `literature-review` | `research` (the `researcher` subagent), `anthropic-skills:deep-research` |
 | `council`, `dev-team` | `grilling` |
 | `continuous-learning*`, `unified-memory`, `ck`, `save-session`, `growth-log` | the built-in auto-memory (`MEMORY.md`); for skill-improvement signals, `task-observer` |
 | `skill-stocktake` | `task-observer`'s weekly review, `writing-great-skills` |
@@ -66,6 +66,8 @@ to always-on is a decision the user makes.
 | `architecture-decision-records` | `domain-modeling` and the repo's `docs/adr/` |
 | `documentation-lookup`, `docs-lookup` | the Claude Docs connector, `claude-api` skill |
 | `terminal-ops`, any "run the tests" agent | the `runner` subagent |
+| any documentation-writing skill or agent (doc updaters, README or API-doc writers) | `documenting` |
+| any research or docs-fetching agent | the `researcher` subagent, via `research` |
 | `silent-failure-hunter` | installed as-is at `~/.claude/agents/silent-failure-hunter.md` |
 
 ## Needs Node or ECC hooks: not usable on this machine

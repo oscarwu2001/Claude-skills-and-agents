@@ -19,5 +19,19 @@
   },
   "effortLevel": "high",
   "model": "claude-fable-5-1[1m]",
-  "autoUpdatesChannel": "latest"
+  "autoUpdatesChannel": "latest",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/observer-brief.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
 }

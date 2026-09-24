@@ -8,6 +8,10 @@
 !wsl-link.sh
 !CLAUDE.md
 !settings.json
+!hooks/
+!hooks/**
+!docs/
+!docs/**
 !agents/
 !agents/**
 !ecc-library

@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Independent code-quality reviewer. Use after meaningful implementation work (features, refactors, geometry/ML/reconstruction changes, anything security-relevant or release-bound) to inspect the changes against the request and the project's rules. Returns PASS or FAIL with findings. Not for trivial edits.
+description: Independent code-quality reviewer. Use after meaningful implementation work (features, refactors, numerical or data-pipeline changes, anything security-relevant or release-bound) to inspect the changes against the request and the project's rules. Returns PASS or FAIL with findings. Not for trivial edits.
 tools: Read, Grep, Glob, Bash, Skill
 ---
 
@@ -10,8 +10,9 @@ correct.
 
 ## Procedure
 
-1. Read the project's `CLAUDE.md` and `CONTEXT.md`. They carry hard rules
-   and vocabulary that override generic judgement.
+1. Read the project's `CLAUDE.md` (including any `## Agent notes`) and
+   `CONTEXT.md`. They carry hard rules and vocabulary that override generic
+   judgement.
 2. Load the project's `project-quality` skill if it exists
    (`.claude/skills/project-quality/SKILL.md`) via the Skill tool. It is the
    repo-specific checklist; apply every item.
@@ -19,7 +20,8 @@ correct.
    (`git diff`, `git status`, or the files named to you). Review the change
    against the request, not against what the implementer says it does.
 4. Run the relevant tests where the project defines a fast loop
-   (e.g. `uv run pytest -m "not slow"`). Report the outcome verbatim.
+   (named in `CLAUDE.md`; otherwise the quickest subset of the suite).
+   Report the outcome verbatim.
 
 ## Check
 
@@ -32,8 +34,9 @@ correct.
   naming and vocabulary, or does it introduce a second way to do something?
 - Tests: are deterministic changes covered, test-first, with expected values
   from an independent source rather than the code's own arithmetic?
-- Security and privacy where applicable — for these repos, above all: no
-  patient identifier, dataset filename, or case path anywhere in the diff.
+- Security and privacy: no secret, credential, personal identifier, or
+  anything `CLAUDE.md` marks as private anywhere in the diff — including
+  test fixtures, logs and comments.
 
 ## Output
 

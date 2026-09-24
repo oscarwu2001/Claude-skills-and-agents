@@ -38,7 +38,7 @@ link() {  # link <target> <link path>
   fi
 }
 
-for x in agents CLAUDE.md ecc-library skill-observations wsl-link.sh; do
+for x in agents CLAUDE.md ecc-library hooks skill-observations wsl-link.sh; do
   [ -e "$W/$x" ] && link "$W/$x" "$H/$x"
 done
 
