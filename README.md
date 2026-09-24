@@ -28,10 +28,11 @@ The Windows checkout is the only configuration. WSL's Claude Code reads
 bash /mnt/c/Users/<name>/.claude/wsl-link.sh
 ```
 
-Then add two `SessionStart` hooks to WSL's own `~/.claude/settings.json`:
-`bash ~/.claude/wsl-link.sh` first, so new skills and projects are linked every
-session, then `bash ~/.claude/hooks/observer-brief.sh` (copy the entry from the
-tracked `settings.json`). The script links agents, skills, hooks, `CLAUDE.md`,
+Then add one `SessionStart` hook to WSL's own `~/.claude/settings.json` with
+the command `bash ~/.claude/wsl-link.sh; bash ~/.claude/hooks/observer-brief.sh`
+— one command, because separate hooks run in parallel and the brief needs the
+links. The first links new skills and projects every session; the second is the
+task-observer brief (the Windows entry is in the tracked `settings.json`). The script links agents, skills, hooks, `CLAUDE.md`,
 `ecc-library`, the observation log
 and each Windows-drive project's auto-memory; its header says what stays
 per-install and why. For graphify, put a wrapper at `~/.local/bin/graphify`

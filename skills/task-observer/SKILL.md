@@ -82,7 +82,7 @@ refers to it, means that directory.
   brief in context the protocol has run: do not repeat those steps, and load
   this file only to log, review, or act on a fault the brief reports. Step 4
   is satisfied by the CLAUDE.md activation block; step 7 (the one-off
-  backfill offer) still applies when the brief reports 0 open and 0 parked.
+  backfill offer) still applies when the brief reports 0 files and the archive is empty.
   Without the brief, run the protocol as written.
 - **Boundary with Claude Code auto-memory:** the memory directory stores
   facts about the user and their projects. A correction that generalises

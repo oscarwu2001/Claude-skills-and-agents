@@ -33,7 +33,7 @@ Pick the row, not a search. Anything not listed → `/ask-matt`.
 | Research: broad multi-source report (market, literature, comparison) | `anthropic-skills:deep-research` | — |
 | Analysis: how this codebase works | graphify query if `graphify-out/` exists, else the `Explore` agent with a precise question | `/archify` or `/system-map` to show it |
 | Analysis: numbers, experiments, sweeps | `runner` | — |
-| Review: a branch or PR | `/code-review` (standards + spec) | on data paths `silent-failure-hunter` first; visual work `ui-reviewer`; auth/input/secrets `/security-review` |
+| Review: a branch or PR | `/code-review` — the local `~/.claude/skills/code-review` (standards + spec axes), not the built-in bug-hunting review | on data paths `silent-failure-hunter` first; visual work `ui-reviewer`; auth/input/secrets `/security-review` |
 | Review: after I implement something | `reviewer` | fix, then re-run it; don't argue with a FAIL in prose |
 | Documentation | `/documenting` | a picture → `/archify`; terms and decisions → `/domain-modeling` |
 | Coding: specified work | `/implement` (drives `/tdd`) | `/code-review` before commit |
@@ -55,8 +55,8 @@ Never: read a file over ~300 lines whole to find one part; `find /` or recursive
 
 - **Delegate the noise.** Commands with long output → `runner`. Sweeps → `Explore`. Reading → `researcher`. Their reply is the summary; the raw material stays in their context.
 - **Load the part, not the skill.** When a skill's pointer names a `references/` file for the step you are on, read that file alone. Big skills (graphify 41 KB, task-observer 33 KB, archify 16 KB) are never loaded "just in case".
-- **Output to files.** Anything longer than a screen is written to a file and returned as a path.
-- **Windows.** `/clear` between unrelated tasks. `/compact` only at a phase boundary, never mid-phase. Near ~120k tokens before a phase ends → `/handoff` and start fresh. `/context` shows what is filling the window.
+- **Logs to files.** Command output and logs longer than a screen go to a file; return the path and the lines that matter.
+- **Context window.** `/clear` between unrelated tasks. `/compact` only at a phase boundary, never mid-phase. Near ~120k tokens before a phase ends → `/handoff` and start fresh. `/context` shows what is filling the window.
 
 # Task-observer activation
 
@@ -68,7 +68,10 @@ context, the protocol has run: act on what it says, and load the
 task-observer skill itself only when you are about to write an
 observation, a review runs, or the brief reports a fault.
 
-**If that brief is NOT in context** (hook not installed, or it failed),
+Subagents never receive the brief and skip this whole block: the parent
+session observes and logs.
+
+**If that brief is NOT in context** in a main session (hook not installed, or it failed),
 fall back: before the first tool call — and before writing or proposing a
 plan — invoke the task-observer skill AND execute its Session Start
 Protocol. Loading the skill and running the protocol are separate steps.

@@ -75,7 +75,6 @@ Rewritten so skills stop competing for the same prompt. Each states its boundary
 ### Also changed
 
 - (2026-09-24) **Not from any upstream:** `documenting/` (skill), `~/.claude/agents/researcher.md`, `~/.claude/hooks/observer-brief.sh`. A sync never touches them.
-
 - `ask-matt` description: "a router over the skills in this repo" → "over every skill installed here".
 - `agents/openai.yaml` added to `archify` and `graphify` so every skill carries interface metadata.
 - `~/.claude/CLAUDE.md` rewritten from a graphify-only note into a skills index. Backup: `~/.claude/CLAUDE.md.bak`.

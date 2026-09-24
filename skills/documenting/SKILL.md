@@ -42,12 +42,13 @@ Collect the facts from the code, not from memory — `graphify query` when `grap
 
 ## 5. Verify
 
-- Run every command and code example in the doc (long ones through the `runner` agent) and fix the doc or the code until they match.
+- Run every read-only or sandboxed command and code example in the doc (long ones through the `runner` agent). A command with side effects — deploy, migrate, publish, delete, anything touching shared state — is not run: ask the user, or mark it not verified.
+- Where an example and the code disagree, fix the doc. Changing the code is a separate decision for the user.
 - Check every relative link and path resolves.
 - For docstrings, compare each against its signature: every parameter present, none stale.
 
-**Done when:** every example has been run on this checkout and every link resolves — list what you ran in your reply. An example you could not run is marked in the doc as not verified, with the reason.
+**Done when:** every safe example has been run on this checkout and every link resolves — list what you ran in your reply. An example you could not run is marked in the doc as not verified, with the reason.
 
 ## 6. Keep it attached to the code
 
-Commit docs in the same change as the code they describe. Generated reference (from docstrings, OpenAPI, `--help`) beats hand-written reference whenever the project can generate it — say so if it can't yet.
+Docs belong in the same change or PR as the code they describe. Generated reference (from docstrings, OpenAPI, `--help`) beats hand-written reference whenever the project can generate it — say so if it can't yet.
