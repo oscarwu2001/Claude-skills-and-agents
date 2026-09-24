@@ -88,6 +88,9 @@ Off the main flow entirely.
 - **`/grill-me`** — the same relentless interview as `/grill-with-docs`, but for when you have **no codebase**. Stateless: it saves nothing locally, builds no `CONTEXT.md`. Reach for it to sharpen any plan or design that doesn't live in a repo.
 - **`/prototype`** — a small, throwaway program that answers one design question: does this state model feel right, or what should this UI look like. Throwaway from day one — keep the answer, delete the code. It's the detour in step 2 of the main flow, but reach for it any time a design question is hard to settle on paper.
 - **`/research`** — delegate reading legwork to a **background agent**: it investigates a question against **primary sources**, then leaves a cited Markdown file in the repo. Keep working while it reads. The file it produces is something to take *into* the main flow at `/grill-with-docs` — research feeds the thinking, it doesn't replace it.
+<!-- LOCAL INTEGRATION — documenting is not an upstream skill. -->
+- **`/documenting`** — write or update docs grounded in the code: one reader, one Diátaxis quadrant (tutorial, how-to, reference, explanation) per page, every claim traced to source, every example run before it ships. The close-out for work whose users need to be told about it.
+<!-- END LOCAL INTEGRATION -->
 - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
 - **`/writing-great-skills`** — reference for writing and editing skills well.
 
@@ -107,6 +110,9 @@ The pairs that compete most often, and the rule that settles each:
 | `/grill-with-docs` vs `/wayfinder` | One session's worth of idea → grill-with-docs. Too big to hold in one session, route still foggy → wayfinder. |
 | `/triage` vs `/to-tickets` | Triage is only for issues **you didn't write**. Tickets `/to-tickets` produced are already agent-ready — don't triage them. |
 | `/task-observer` vs `/writing-great-skills` | The observer **notices, logs, and runs the review process** (staging, taxonomy, status bookkeeping). writing-great-skills is the **craft reference** loaded at the moment a skill actually gets written or edited. The review drafts a change → write it with writing-great-skills loaded. |
+| `/research` vs `anthropic-skills:deep-research` vs `Explore` | One precise question about a library, API or standard → `/research` (the `researcher` agent, cited file in the repo). A broad report across many sources (a market, a literature, a field's options) → deep-research. How *this* codebase works → graphify if `graphify-out/` exists, else `Explore`. |
+| `/documenting` vs `/domain-modeling` | documenting writes pages for **readers** — README, how-to, reference, docstrings. domain-modeling keeps the **glossary and ADRs** a design conversation produces. A doc that needs a term defined links to `CONTEXT.md` rather than redefining it. |
+| `/code-review` vs `reviewer` agent | `/code-review` reviews a **branch against a fixed point** on two axes, standards and spec. The `reviewer` agent is the quick PASS/FAIL gate after you implement something in-session. On data paths, `silent-failure-hunter` runs before either. |
 | `/task-observer` log vs auto-memory | A correction about **the user or a project** → the memory directory. A correction naming a missing rule in **an installed skill** → the observation log. Genuinely both → write both. |
 
 Still torn? Prefer the skill that **writes something down**. A decision that leaves a paper trail is worth more than one that doesn't.

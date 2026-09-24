@@ -1,7 +1,8 @@
 # Claude skills and agents
 
 Portable Claude Code configuration: `CLAUDE.md`, `settings.json`, the
-user-level subagents in `agents/`, the skills in `skills/`, and the ECC
+user-level subagents in `agents/`, the skills in `skills/`, the hooks in
+`hooks/`, and the ECC
 catalogue as a submodule in `ecc-library/` (unloaded; reached through the
 `ecc` router skill).
 
@@ -27,9 +28,11 @@ The Windows checkout is the only configuration. WSL's Claude Code reads
 bash /mnt/c/Users/<name>/.claude/wsl-link.sh
 ```
 
-Then add a `SessionStart` hook running `bash ~/.claude/wsl-link.sh` to WSL's own
-`~/.claude/settings.json`, so new skills and projects are linked every session.
-The script links agents, skills, `CLAUDE.md`, `ecc-library`, the observation log
+Then add two `SessionStart` hooks to WSL's own `~/.claude/settings.json`:
+`bash ~/.claude/wsl-link.sh` first, so new skills and projects are linked every
+session, then `bash ~/.claude/hooks/observer-brief.sh` (copy the entry from the
+tracked `settings.json`). The script links agents, skills, hooks, `CLAUDE.md`,
+`ecc-library`, the observation log
 and each Windows-drive project's auto-memory; its header says what stays
 per-install and why. For graphify, put a wrapper at `~/.local/bin/graphify`
 that runs `exec graphify.exe "$@"` rather than installing a second copy.

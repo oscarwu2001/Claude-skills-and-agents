@@ -1,21 +1,15 @@
 ---
 name: task-observer
 description: >
-  Monitors task execution for skill improvement opportunities. Use during ANY
-  multi-step task, agentic workflow, or work session where the agent uses
-  tools and produces deliverables. Captures patterns, user corrections,
-  workflow insights, and methodology worth preserving as reusable skills.
-  Also triggers in post-task feedback discussions and when the user mentions
-  skill observations, improvements, the observation log, skill taxonomy, or
-  asks the agent to watch for skill opportunities.
-  Also known as "One Skill to Rule Them All" — trigger on this phrase too.
-  IMPORTANT: invoke this skill before the FIRST tool call of any session and
-  before writing or proposing a plan — any turn that will involve a tool call
-  counts, however simple the opener looks. This sentence is the
-  session-start trigger and the only activation layer that survives an
-  unreachable config file; pair it with a CLAUDE.md instruction or a harness
-  session-start hook (references/environments.md) — description matching
-  alone is not enforceable.
+  Logs skill-improvement observations and runs the weekly review that turns
+  them into staged skill updates. Use when a user correction exposes a missing
+  rule in an installed skill, when a skill rule was broken, when a reusable
+  workflow has no skill, when a review is due or requested, or when the user
+  mentions skill observations, the observation log, skill taxonomy or "One
+  Skill to Rule Them All". The session-start checks run in the SessionStart
+  hook (~/.claude/hooks/observer-brief.sh); if its "task-observer (hook-run
+  start protocol)" brief is absent from context, invoke this skill before the
+  first tool call and run the Session Start Protocol.
 ---
 
 # Task Observer — Continuous Skill Discovery & Improvement
@@ -81,6 +75,15 @@ refers to it, means that directory.
   `references/skill-authoring.md` governs process (staging, taxonomy,
   licensing, confidentiality); `writing-great-skills` governs the writing
   itself. They do not overlap; load both.
+- **Hook-run start protocol:** `~/.claude/hooks/observer-brief.sh`, wired as
+  a `SessionStart` hook, performs Session Start Protocol steps 1 (storage),
+  2 (frontmatter scan with the broken-parse guard), 3 (review trigger) and 6
+  (unresolved targets, staged updates) and injects the result. With that
+  brief in context the protocol has run: do not repeat those steps, and load
+  this file only to log, review, or act on a fault the brief reports. Step 4
+  is satisfied by the CLAUDE.md activation block; step 7 (the one-off
+  backfill offer) still applies when the brief reports 0 open and 0 parked.
+  Without the brief, run the protocol as written.
 - **Boundary with Claude Code auto-memory:** the memory directory stores
   facts about the user and their projects. A correction that generalises
   to *the user or a project* → memory. A correction that names a missing
