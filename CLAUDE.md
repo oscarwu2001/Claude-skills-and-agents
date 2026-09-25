@@ -60,6 +60,15 @@ Never: read a file over ~300 lines whole to find one part; `find /` or recursive
 - **Logs to files.** Command output and logs longer than a screen go to a file; return the path and the lines that matter.
 - **Context window.** `/clear` between unrelated tasks. `/compact` only at a phase boundary, never mid-phase. Near ~120k tokens before a phase ends → `/handoff` and start fresh. `/context` shows what is filling the window.
 
+# Parallel sessions
+
+Several chats on one repo share a **project board** (`~/.claude/hooks/board.sh`, stored in the repo's `.git/claude-board/`, never committed). Hooks tell you what other chats did since your last turn and warn before you edit a file another chat changed after you last touched it. Nothing arrives when nothing changed.
+
+- Board updates are facts about the repo: re-read any file they list before editing it, and follow decisions noted there unless the user says otherwise.
+- **Write a note** with `bash ~/.claude/hooks/board.sh note "..."` when you settle something other chats must follow (a rename, an interface, a schema, a chosen approach), start or finish a task, switch branch, or leave something half-done or broken. One line; no secrets or patient data.
+- If the session-start brief says another chat shares this folder and the work changes code, tell the user and suggest a worktree for this chat: `claude -w <name>`.
+- To reach one specific chat now, use `SendMessage` (find it with `ListAgents`). The board is the record; a message is the ping.
+
 # Task-observer activation
 
 The `SessionStart` hook `~/.claude/hooks/observer-brief.sh` runs the

@@ -56,6 +56,29 @@ suggest routes; confident disagreements show where routing goes wrong. Turn it
 off with `touch ~/.claude/route-shadow/off`. In WSL, add its `UserPromptSubmit`
 and `PreToolUse` entries from `settings.json` to WSL's own settings.
 
+## Parallel chats on one repo
+
+`hooks/board.sh` keeps a **project board** per git repo, in `.git/claude-board/`
+(shared by every worktree, never committed). Every chat on the repo sees, via
+hooks, what the other chats edited, committed and decided since its last turn,
+and gets a warning before editing a file another chat just changed. Chats add
+decisions with `board.sh note "..."`; read the whole board yourself with:
+
+```bash
+bash ~/.claude/hooks/board.sh show
+```
+
+For parallel *code* changes, start each chat in its own worktree so edits
+can't collide, and let the board carry the knowledge between them:
+
+```bash
+claude -w api-rename      # chat 1
+claude -w docs-refresh    # chat 2
+```
+
+In WSL, add the `board.sh` entries from `settings.json` (SessionStart,
+UserPromptSubmit, PreToolUse, PostToolUse, SessionEnd) to WSL's own settings.
+
 ## Per-project agent notes
 
 The agents are generic. Give each project an `## Agent notes` section in its
