@@ -60,7 +60,12 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 Send a single message with two `Agent` tool calls. Use the `general-purpose` subagent for both.
 
 <!-- LOCAL INTEGRATION — Standards runs on the reviewer subagent. -->
-**This install:** run the **Standards** sub-agent as the **`reviewer`** subagent (`~/.claude/agents/reviewer.md`), not `general-purpose`. It already reads the project's `CLAUDE.md` and `project-quality` checklist, so documented standards are never missed, and the work shows up as the reviewer's in transcripts and in Agent's Home. It will also run the fast test loop and open with its usual `PASS`/`FAIL` line; keep both, then its Standards report. The **Spec** sub-agent stays `general-purpose`. If the `reviewer` agent is missing, use `general-purpose` for both, as upstream does.
+**This install:** run the **Standards** sub-agent as the **`reviewer`** subagent (`~/.claude/agents/reviewer.md`), not `general-purpose`. It already reads the project's `CLAUDE.md` and `project-quality` checklist, so documented standards are never missed. Add two lines to its prompt:
+
+- "Standards axis only. Whether the diff does what was asked is the Spec sub-agent's job — skip correctness-against-the-request and scope findings; regressions, tests and security stay yours."
+- If a passing run of the fast test loop on this exact `HEAD` is already in the conversation (typically `/implement` just ran it), pass that result and say "Tests already passed on this commit; don't re-run them." Otherwise let it run them.
+
+Keep its opening `PASS`/`FAIL` line and put its report under Standards. The **Spec** sub-agent stays `general-purpose`. If the `reviewer` agent is missing, use `general-purpose` for both, as upstream does.
 <!-- END LOCAL INTEGRATION -->
 
 **Standards sub-agent prompt** — include:
