@@ -6,6 +6,10 @@ user-level subagents in `agents/`, the skills in `skills/`, the hooks in
 catalogue as a submodule in `ecc-library/` (unloaded; reached through the
 `ecc` router skill).
 
+Commands below are for Git Bash or WSL, where `~` is your home folder. In
+Windows Command Prompt write `%USERPROFILE%` instead of `~` (PowerShell: `$HOME`),
+and backslashes: `git -C "%USERPROFILE%\.claude" pull --ff-only`.
+
 Everything else that Claude Code keeps in `~/.claude` (sessions, transcripts,
 memory, caches, local settings) is ignored by the allowlist in `.gitignore`
 and never leaves the machine.
@@ -68,6 +72,9 @@ decisions with `board.sh note "..."`; read the whole board yourself with:
 bash ~/.claude/hooks/board.sh show
 ```
 
+(From Command Prompt: `bash "%USERPROFILE%\.claude\hooks\board.sh" show`, run
+inside the repo.)
+
 For parallel *code* changes, start each chat in its own worktree so edits
 can't collide, and let the board carry the knowledge between them:
 
@@ -90,6 +97,12 @@ template and the spine/C-arm projects' filled-in block are in
 
 ```bash
 git -C ~/.claude pull --ff-only && git -C ~/.claude submodule update --init
+```
+
+Windows Command Prompt:
+
+```cmd
+git -C "%USERPROFILE%\.claude" pull --ff-only && git -C "%USERPROFILE%\.claude" submodule update --init
 ```
 
 ## Update ECC
