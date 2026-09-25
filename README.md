@@ -38,6 +38,24 @@ and each Windows-drive project's auto-memory; its header says what stays
 per-install and why. For graphify, put a wrapper at `~/.local/bin/graphify`
 that runs `exec graphify.exe "$@"` rather than installing a second copy.
 
+## Shadow router
+
+`hooks/route-shadow.sh` is a shadow-mode router in the style of a System One
+model: on every prompt, haiku classifies the request into a work mode with a
+confidence (in the background, about $0.004 each), and the skill or agent the
+main model actually used is logged beside it. It injects and blocks nothing.
+The log (`route-shadow/log.jsonl`, never tracked) holds ids, times, modes and
+route names, never prompt text. After a week or two:
+
+```bash
+python3 ~/.claude/hooks/route-shadow-report.py      # `python` on Windows
+```
+
+High agreement at high confidence means a confidence-gated router could safely
+suggest routes; confident disagreements show where routing goes wrong. Turn it
+off with `touch ~/.claude/route-shadow/off`. In WSL, add its `UserPromptSubmit`
+and `PreToolUse` entries from `settings.json` to WSL's own settings.
+
 ## Per-project agent notes
 
 The agents are generic. Give each project an `## Agent notes` section in its

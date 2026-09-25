@@ -14,6 +14,7 @@
 #
 # Never fails the session: any problem is reported inside the brief, exit 0.
 set -u
+[ -n "${ROUTE_SHADOW_CHILD:-}" ] && { printf '{}\n'; exit 0; }   # route-shadow's classifier call
 
 C="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null)")/.." 2>/dev/null && pwd)"
 # Could not locate our own .claude folder: inject nothing, so CLAUDE.md's fallback applies.
