@@ -59,6 +59,10 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 Send a single message with two `Agent` tool calls. Use the `general-purpose` subagent for both.
 
+<!-- LOCAL INTEGRATION — Standards runs on the reviewer subagent. -->
+**This install:** run the **Standards** sub-agent as the **`reviewer`** subagent (`~/.claude/agents/reviewer.md`), not `general-purpose`. It already reads the project's `CLAUDE.md` and `project-quality` checklist, so documented standards are never missed, and the work shows up as the reviewer's in transcripts and in Agent's Home. It will also run the fast test loop and open with its usual `PASS`/`FAIL` line; keep both, then its Standards report. The **Spec** sub-agent stays `general-purpose`. If the `reviewer` agent is missing, use `general-purpose` for both, as upstream does.
+<!-- END LOCAL INTEGRATION -->
+
 **Standards sub-agent prompt** — include:
 
 - The full diff command and commit list.
