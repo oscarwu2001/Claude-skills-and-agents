@@ -20,6 +20,7 @@
   "effortLevel": "high",
   "model": "claude-fable-5-1[1m]",
   "autoUpdatesChannel": "latest",
+  "theme": "dark-daltonized",
   "hooks": {
     "SessionStart": [
       {
