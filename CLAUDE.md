@@ -53,7 +53,9 @@ Never: read a file over ~300 lines whole to find one part; `find /` or recursive
 
 # Token budget
 
-- **Delegate the noise.** Commands with long output → `runner`. Sweeps → `Explore`. Reading → `researcher`. Their reply is the summary; the raw material stays in their context.
+- **Delegate execution, keep judgement.** Commands with long output → `runner`. Sweeps → `Explore`. Reading → `researcher`. They return facts (failing test, assertion, numbers, citations), never diagnoses; planning, diagnosis and the fix stay in the main session, reasoning over their short exact output instead of the raw log.
+- **Model and effort follow the job.** `runner` is haiku with a turn cap; `researcher` sonnet at medium effort; the reviewers run at high effort whatever the session is set to. Lower the main session with `/effort` for routine edits, not in the defaults.
+- **Test loop.** After a fix, `runner` re-runs only what failed, then the full suite once at the end.
 - **Load the part, not the skill.** When a skill's pointer names a `references/` file for the step you are on, read that file alone. Big skills (graphify 41 KB, task-observer 33 KB, archify 16 KB) are never loaded "just in case".
 - **Logs to files.** Command output and logs longer than a screen go to a file; return the path and the lines that matter.
 - **Context window.** `/clear` between unrelated tasks. `/compact` only at a phase boundary, never mid-phase. Near ~120k tokens before a phase ends → `/handoff` and start fresh. `/context` shows what is filling the window.

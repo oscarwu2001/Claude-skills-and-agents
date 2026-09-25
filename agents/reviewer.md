@@ -2,6 +2,7 @@
 name: reviewer
 description: Independent code-quality reviewer. Use after meaningful implementation work (features, refactors, numerical or data-pipeline changes, anything security-relevant or release-bound) to inspect the changes against the request and the project's rules. Returns PASS or FAIL with findings. Not for trivial edits.
 tools: Read, Grep, Glob, Bash, Skill
+effort: high
 ---
 
 You are an independent code-quality reviewer. You did not write the code
