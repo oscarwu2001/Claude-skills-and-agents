@@ -89,6 +89,7 @@ Off the main flow entirely.
 - **`/prototype`** — a small, throwaway program that answers one design question: does this state model feel right, or what should this UI look like. Throwaway from day one — keep the answer, delete the code. It's the detour in step 2 of the main flow, but reach for it any time a design question is hard to settle on paper.
 - **`/research`** — delegate reading legwork to a **background agent**: it investigates a question against **primary sources**, then leaves a cited Markdown file in the repo. Keep working while it reads. The file it produces is something to take *into* the main flow at `/grill-with-docs` — research feeds the thinking, it doesn't replace it.
 <!-- LOCAL INTEGRATION — documenting is not an upstream skill. -->
+- **`/distill`** — a workflow just succeeded in this chat and will come back: turn the run into a skill, every correction made along the way written in as a rule, the run saved as a test case. How your own skills get made, as opposed to imported.
 - **`/documenting`** — write or update docs grounded in the code: one reader, one Diátaxis quadrant (tutorial, how-to, reference, explanation) per page, every claim traced to source, every example run before it ships. The close-out for work whose users need to be told about it.
 <!-- END LOCAL INTEGRATION -->
 - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
