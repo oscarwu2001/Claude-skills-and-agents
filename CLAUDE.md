@@ -44,6 +44,6 @@ Never: read a file over ~300 lines whole to find one part; `find /` or recursive
 
 # Hook briefs
 
-Hooks inject short briefs when they apply; follow them. The **project board** brief appears when other chats are active on this repo and carries its own rules. Record a decision other chats must follow with `bash ~/.claude/hooks/board.sh note "..."`.
+Hooks inject short briefs when they apply; follow them. The **project board** brief appears when other chats are active on this repo and carries its own rules. Record a decision other chats must follow with `bash ~/.claude/hooks/board.sh note "..."`; when the user gives this chat a role (owner, check, research…), record it with `bash ~/.claude/hooks/board.sh role <name>`.
 
 **Task-observer:** the `SessionStart` brief beginning "task-observer (hook-run start protocol)" means its start protocol has run; load the skill only to log an observation, run a review, or act on a fault the brief reports. If that brief is missing in a main session, invoke the task-observer skill and run its Session Start Protocol before the first tool call. Subagents skip this. After each task, report one line: observations written (ids and titles) or none and why. The log lives in `skill-observations/` of the user-level `.claude` folder holding this file (Windows `%USERPROFILE%\.claude`, WSL `/mnt/c/Users/<name>/.claude`), never a path derived from the cwd.

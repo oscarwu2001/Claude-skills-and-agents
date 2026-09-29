@@ -17,6 +17,7 @@
 #   SessionEnd        -> the session leaving
 # What the model records on purpose:
 #   bash ~/.claude/hooks/board.sh note "decision or status, one line"
+#   bash ~/.claude/hooks/board.sh role owner     # this chat's role; others then see "owner (a1b2c3)"
 # For people:
 #   bash ~/.claude/hooks/board.sh show
 #
@@ -75,8 +76,8 @@ hook)
   fi
   dir=$(field cwd | sed 's/\\\\/\\/g')
   cd "${dir:-${CLAUDE_PROJECT_DIR:-$PWD}}" 2>/dev/null || cd "${CLAUDE_PROJECT_DIR:-$PWD}" 2>/dev/null || exit 0 ;;
-note|show) ;;
-*) echo 'usage: board.sh [note "text" | show]' >&2; exit 1 ;;
+note|show|role) ;;
+*) echo 'usage: board.sh [note "text" | role <name> | show]' >&2; exit 1 ;;
 esac
 
 # ---- locate the repo and the board ------------------------------------------
@@ -90,6 +91,10 @@ mkdir -p "$CUR" 2>/dev/null || fail "cannot create $CUR"
 [ -f "$LOG" ] || : >> "$LOG"
 GEN=$(cat "$B/gen" 2>/dev/null); : "${GEN:=0}"
 
+role_of() { cat "$B/roles/$1" 2>/dev/null; }            # role_of <full session id>
+roles_str() {  # "sid6=role;sid6=role" for awk
+  local f; for f in "$B"/roles/*; do [ -f "$f" ] && printf '%s=%s;' "$(basename "$f" | cut -c1-6)" "$(cat "$f")"; done
+}
 append() {  # append <sid> <kind> <text>
   local t; t=$(printf '%s' "$3" | clean)
   printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$(now_ms)" "${1:0:6}" "$BR" "$TOP" "$2" "$t" >> "$LOG"
@@ -108,11 +113,12 @@ rel_path() {  # repo-relative path of a hook file path, or nothing when outside 
 
 # Render board lines (TSV on stdin): edits collapsed per session; the newest kept.
 render() {  # render <max-lines>
-  awk -F'\t' -v max="$1" -v now="$(date +%s)" '
+  awk -F'\t' -v max="$1" -v now="$(date +%s)" -v roles="$(roles_str)" '
     function base(p,  n, a) { n = split(p, a, "/"); return a[n] }
+    BEGIN { n = split(roles, rr, ";"); for (i = 1; i <= n; i++) if (split(rr[i], kv, "=") == 2) R[kv[1]] = kv[2] }
     function when(ms,  s) { s = int(ms / 1000); return strftime(now - s > 43200 ? "%m-%d %H:%M" : "%H:%M", s) }
     {
-      who = $2 " [" $3 " @ " base($4) "]"
+      who = ($2 in R ? R[$2] " (" $2 ")" : $2) " [" $3 " @ " base($4) "]"
       if ($5 == "edit") {
         if (!(who in files)) { order[++k] = "E" who; files[who] = ""; nf[who] = 0 }
         last[who] = $1
@@ -120,6 +126,7 @@ render() {  # render <max-lines>
       } else if ($5 == "note")  order[++k] = when($1) "  " who ": " $6
       else if ($5 == "git")     order[++k] = when($1) "  " who " git " $6
       else if ($5 == "start")   order[++k] = when($1) "  " who " started"
+      else if ($5 == "role")    order[++k] = when($1) "  " who " took the role: " $6
       else if ($5 == "end")     order[++k] = when($1) "  " who " ended"
     }
     END {
@@ -145,7 +152,8 @@ active_others() {  # lines: sid6 <tab> branch <tab> top ; newest first, at most 
     n="$f"; f="$CUR/$f"
     [ -f "$f" ] && [ "$n" != "$me" ] || continue
     [ -n "$(find "$f" -mmin -"$ACTIVE_MIN" 2>/dev/null)" ] || continue
-    printf '%s\t%s\n' "${n:0:6}" "$(cut -f3,4 "$f" | head -1)"
+    rl=$(role_of "$n")
+    printf '%s\t%s\n' "${rl:+$rl (}${n:0:6}${rl:+)}" "$(cut -f3,4 "$f" | head -1)"
   done | head -n "$MAX_ACTIVE"
 }
 
@@ -158,6 +166,16 @@ note)
   append "$me" note "$*"
   [ -f "$CUR/$me" ] && touch "$CUR/$me"
   echo "noted on the project board ($B)"
+  exit 0 ;;
+role)
+  shift
+  me="${CLAUDE_CODE_SESSION_ID:-}"
+  [ -n "$me" ] || { echo "board.sh role: run this from inside a Claude Code chat" >&2; exit 1; }
+  rl=$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | cut -c1-24)
+  [ -n "$rl" ] || { echo 'usage: board.sh role <name>   e.g. owner, check, research, docs' >&2; exit 1; }
+  mkdir -p "$B/roles" && printf '%s' "$rl" > "$B/roles/$me"
+  append "$me" role "$rl"
+  echo "this chat is now '$rl' on the project board"
   exit 0 ;;
 show)
   echo "Project board: $LOG"
@@ -206,7 +224,8 @@ WARNING: another session is working in this same folder, so edits can collide. T
 Recent notes and git activity from other sessions (24h):
 $notes"
   msg="$msg
-How to use the board: its updates are facts about the repo -- re-read any file they list before editing it, and follow noted decisions unless the user says otherwise. Your edited paths and git results (verb, branch, commit subject) are recorded automatically; command lines never are. Add a one-line note when you settle something other chats must follow (a rename, interface, schema or approach), start or finish a task, switch branch, or leave work half-done -- no secrets or patient data. To reach one chat now, use SendMessage (find it with ListAgents)."
+How to use the board: its updates are facts about the repo -- re-read any file they list before editing it, and follow noted decisions unless the user says otherwise. Your edited paths and git results (verb, branch, commit subject) are recorded automatically; command lines never are. Add a one-line note when you settle something other chats must follow (a rename, interface, schema or approach), start or finish a task, switch branch, or leave work half-done -- no secrets or patient data. To reach one chat now, use SendMessage (find it with ListAgents).
+Roles and hand-offs: when the user gives this chat a role, record it with board.sh role <name> (e.g. owner, check, research, docs). Assigned work between chats is a task packet, sent by SendMessage and recorded as one board note (\"handed <outcome> to <role>\"): OUTCOME in one sentence; FILES that matter; ACCEPTANCE criteria that define done; PROOF expected back (tests run, commit hash); LIMITS (what not to touch, what needs the user). Owner and checker: the owner hands the checker the exact commit or diff, never \"the latest\"; the checker reviews only that candidate and posts findings as a board note; nobody approves their own work. Information that creates no obligation is a plain note or message, not a task."
   json_out SessionStart "$msg"
   ;;
 UserPromptSubmit)
@@ -261,7 +280,7 @@ PostToolUse)
   ;;
 SessionEnd)
   append "$sid" end "$(field reason)"
-  rm -f "$CUR/$sid"
+  rm -f "$CUR/$sid" "$B/roles/$sid"
   ;;
 esac
 exit 0

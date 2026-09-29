@@ -75,6 +75,13 @@ bash ~/.claude/hooks/board.sh show
 (From Command Prompt: `bash "%USERPROFILE%\.claude\hooks\board.sh" show`, run
 inside the repo.)
 
+Give chats roles so they address each other by job, not by id: tell a chat
+"you are the owner" (it runs `board.sh role owner`), another "you are the
+checker". Hand-offs between them carry a task packet (outcome, files,
+acceptance, proof, limits), and the checker reviews the exact commit the
+owner names. Naming the session the same (`claude --name owner`) makes it
+easy to find with `/list-agents`.
+
 For parallel *code* changes, start each chat in its own worktree so edits
 can't collide, and let the board carry the knowledge between them:
 
