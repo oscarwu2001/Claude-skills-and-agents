@@ -54,6 +54,7 @@ Find the marked ones with `grep -rn 'LOCAL INTEGRATION' ~/.claude/skills`.
 | `improve-codebase-architecture/SKILL.md` | final bullet — hand the *chosen* candidate's before/after to `archify compare` |
 | `ask-matt/SKILL.md` | `## Observing underneath` — routes task-observer as a background layer, never a destination |
 | `ask-matt/SKILL.md` | boundary table — two rows added: task-observer vs writing-great-skills (process vs craft), observation log vs auto-memory (skill rule vs user/project fact) |
+| `ask-matt/SKILL.md` | (2026-09-29) `## Standalone` — `/distill` bullet, inside the existing documenting LOCAL INTEGRATION block |
 | `ask-matt/SKILL.md` | (2026-09-24) `## Standalone` — `/documenting` bullet; boundary table — three rows: research vs deep-research vs Explore, documenting vs domain-modeling, code-review vs the reviewer agent |
 | `code-review/SKILL.md` | (2026-09-25) step 4 — the Standards sub-agent runs as the `reviewer` subagent, told to stay on the Standards axis and to skip the test run when a pass on the same `HEAD` is already known; keeps its PASS/FAIL line; Spec stays `general-purpose`; falls back to upstream when `reviewer` is missing |
 | `research/SKILL.md` | (2026-09-24) `## This install` — dispatch to the `researcher` subagent with a four-line brief; one agent per question; boundary against deep-research and Explore |
@@ -75,10 +76,11 @@ Rewritten so skills stop competing for the same prompt. Each states its boundary
 
 ### Also changed
 
-- (2026-09-24) **Not from any upstream:** `documenting/` (skill), `~/.claude/agents/researcher.md`, `~/.claude/hooks/observer-brief.sh`. A sync never touches them.
+- (2026-09-24) **Not from any upstream:** `documenting/` and (2026-09-29) `distill/` (skills), `~/.claude/agents/researcher.md`, `~/.claude/hooks/observer-brief.sh`. A sync never touches them.
 - `ask-matt` description: "a router over the skills in this repo" → "over every skill installed here".
 - `agents/openai.yaml` added to `archify` and `graphify` so every skill carries interface metadata.
 - `~/.claude/CLAUDE.md` rewritten from a graphify-only note into a skills index. Backup: `~/.claude/CLAUDE.md.bak`.
+- `~/.claude/CLAUDE.md` (2026-09-29): cut from 10.3 KB to 5.2 KB. The skills and agents lists went (their descriptions are already in context); the parallel-session rules moved into the board hook's brief; the task-observer block was condensed into "Hook briefs".
 - `~/.claude/CLAUDE.md` (2026-08-31): task-observer index line + its activation block (Session Start Protocol trigger, post-task summary backstop, pinned workspace path). Upstream's template is in `task-observer/references/environments.md`; reapply the pinned path if ever re-copied.
 
 ## Updating safely

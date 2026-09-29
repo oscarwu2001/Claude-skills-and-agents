@@ -205,6 +205,8 @@ WARNING: another session is working in this same folder, so edits can collide. T
   [ -n "$notes" ] && msg="$msg
 Recent notes and git activity from other sessions (24h):
 $notes"
+  msg="$msg
+How to use the board: its updates are facts about the repo -- re-read any file they list before editing it, and follow noted decisions unless the user says otherwise. Your edited paths and git results (verb, branch, commit subject) are recorded automatically; command lines never are. Add a one-line note when you settle something other chats must follow (a rename, interface, schema or approach), start or finish a task, switch branch, or leave work half-done -- no secrets or patient data. To reach one chat now, use SendMessage (find it with ListAgents)."
   json_out SessionStart "$msg"
   ;;
 UserPromptSubmit)
