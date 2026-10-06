@@ -93,6 +93,14 @@ claude -w docs-refresh    # chat 2
 In WSL, add the `board.sh` entries from `settings.json` (SessionStart,
 UserPromptSubmit, PreToolUse, PostToolUse, SessionEnd) to WSL's own settings.
 
+## Dreamer
+
+The `dreamer` agent steps back once a week (or when you say "dream") and
+returns at most three evidence-backed bets on what would change the game, each
+with a cheap experiment and a kill criterion. It reads the project's existing
+goal and plan docs rather than adding any; its memos go to
+`~/.claude/dreams/<repo>/`, never into the project.
+
 ## Per-project agent notes
 
 The agents are generic. Give each project an `## Agent notes` section in its
