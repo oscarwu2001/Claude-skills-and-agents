@@ -22,6 +22,7 @@ Pick the row, not a search. Anything not listed → `/ask-matt`.
 | Coding: specified work | `/implement` (drives `/tdd`) | `/code-review` before commit |
 | Coding: something's broken, cause unknown | `/diagnosing-bugs` | `/tdd` once the cause is known |
 | A workflow just worked and will recur | `/distill` — turn this run into a skill | the next real use of that skill is its first test |
+| Step back: what would change the game (weekly, or "dream") | `dreamer` agent — ≤3 evidence-backed bets, memo outside the repo | the bet the user picks → the normal flow above |
 
 # Finding things — no blind search
 
