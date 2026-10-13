@@ -20,6 +20,7 @@ Pick the row, not a search. Anything not listed → `/ask-matt`.
 | Review: after I implement something | `reviewer` | fix, then re-run it; don't argue with a FAIL in prose |
 | Documentation | `/documenting` | a picture → `/archify`; terms and decisions → `/domain-modeling` |
 | Coding: specified work | `/implement` (drives `/tdd`) | `/code-review` before commit |
+| Coding: handing a build off to run in the background | `builder` agent, one phase per run (a big job is several runs, each briefed with the last one's "Left:") | `reviewer` on its commits |
 | Coding: something's broken, cause unknown | `/diagnosing-bugs` | `/tdd` once the cause is known |
 | A workflow just worked and will recur | `/distill` — turn this run into a skill | the next real use of that skill is its first test |
 | Step back: what would change the game (weekly, or "dream") | `dreamer` agent — ≤3 evidence-backed bets, memo outside the repo | the bet the user picks → the normal flow above |
@@ -38,7 +39,8 @@ Never: read a file over ~300 lines whole to find one part; `find /` or recursive
 
 # Token budget
 
-- **Delegate execution, keep judgement.** Long output → `runner`; sweeps → `Explore`; reading → `researcher`. They return facts (failing test, assertion, numbers, citations), never diagnoses; planning, diagnosis and the fix stay here.
+- **Delegate execution, keep judgement.** Long output → `runner`; sweeps → `Explore`; reading → `researcher`; background builds → `builder`, never `general-purpose`. They return facts (failing test, assertion, numbers, citations), never diagnoses; planning, diagnosis and the fix stay here.
+- **Short helpers.** A helper's cost grows with the square of its length, because every turn re-reads its whole context. Split long delegated work into phases of about an hour, each a fresh helper; never one multi-hour run.
 - **Load the part, not the skill.** When a skill points at a `references/` file for the current step, read that file alone. Big skills (graphify, task-observer, archify) are never loaded "just in case".
 - **Logs to files.** Anything longer than a screen goes to a file; return the path and the lines that matter.
 - **Context window.** `/clear` between unrelated tasks; `/compact` only at a phase boundary; near ~120k tokens mid-phase → `/handoff` and start fresh.

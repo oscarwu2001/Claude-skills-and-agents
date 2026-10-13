@@ -72,11 +72,12 @@ Rewritten so skills stop competing for the same prompt. Each states its boundary
 | `diagnosing-bugs` / `tdd` | Both claimed bug-fixing. Split on whether the cause is known. Reapplied after the 2026-08-28 sync. |
 | `grilling` | Points at `grill-with-docs` inside a repo so the paper-trail wrapper isn't bypassed. Reapplied after the 2026-08-28 sync. |
 | `archify` | Boundary against `graphify` (answer vs draw) and `dataviz` (topology vs numbers). |
+| `task-observer` | (2026-10-13) Description now says main sessions only: helpers never receive the hook brief, so the old "if the brief is absent, load me" sentence made every helper load the 33 KB skill (44–73 loads per 28 days in the Agent's Home reports). |
 | `task-observer` | (2026-09-24) Upstream's description orders a full-skill load before every session's first tool call — ~8k tokens a session. The `SessionStart` hook now runs those checks; the description keeps the logging triggers and falls back to the upstream behaviour when the hook's brief is absent. Upstream text: see the pinned commit. |
 
 ### Also changed
 
-- (2026-09-24) **Not from any upstream:** `documenting/` and (2026-09-29) `distill/` (skills), `~/.claude/agents/researcher.md`, (2026-10-06) `~/.claude/agents/dreamer.md`, `~/.claude/hooks/observer-brief.sh`. A sync never touches them.
+- (2026-09-24) **Not from any upstream:** `documenting/` and (2026-09-29) `distill/` (skills), `~/.claude/agents/researcher.md`, (2026-10-06) `~/.claude/agents/dreamer.md`, (2026-10-13) `~/.claude/agents/builder.md`, `~/.claude/hooks/observer-brief.sh`. A sync never touches them.
 - `ask-matt` description: "a router over the skills in this repo" → "over every skill installed here".
 - `agents/openai.yaml` added to `archify` and `graphify` so every skill carries interface metadata.
 - `~/.claude/CLAUDE.md` rewritten from a graphify-only note into a skills index. Backup: `~/.claude/CLAUDE.md.bak`.

@@ -7,9 +7,11 @@ description: >
   workflow has no skill, when a review is due or requested, or when the user
   mentions skill observations, the observation log, skill taxonomy or "One
   Skill to Rule Them All". The session-start checks run in the SessionStart
-  hook (~/.claude/hooks/observer-brief.sh); if its "task-observer (hook-run
-  start protocol)" brief is absent from context, invoke this skill before the
-  first tool call and run the Session Start Protocol.
+  hook (~/.claude/hooks/observer-brief.sh); in a MAIN session whose context
+  lacks that "task-observer (hook-run start protocol)" brief, invoke this skill
+  before the first tool call and run the Session Start Protocol. Subagents and
+  helpers never load this skill: they never get the brief, and the main session
+  observes for them.
 ---
 
 # Task Observer — Continuous Skill Discovery & Improvement
