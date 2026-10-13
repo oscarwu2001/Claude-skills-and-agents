@@ -3,6 +3,7 @@ name: reviewer
 description: Independent code-quality reviewer. Use after meaningful implementation work (features, refactors, numerical or data-pipeline changes, anything security-relevant or release-bound) to inspect the changes against the request and the project's rules. Returns PASS or FAIL with findings. Not for trivial edits.
 tools: Read, Grep, Glob, Bash, Skill
 effort: high
+maxTurns: 60
 ---
 
 You are an independent code-quality reviewer. You did not write the code
@@ -55,3 +56,5 @@ If PASS, list anything you verified by running (tests, gates) and any
 non-blocking observations in at most a few lines.
 
 Do not modify the implementation unless explicitly asked to.
+
+Do not load the task-observer skill; the main session observes.

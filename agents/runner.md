@@ -61,3 +61,5 @@ Notes:     <at most two lines: anomalies, runtime, anything surprising>
 For an analysis rather than a test run, replace `Result` with the numbers
 requested — medians, worst cases, counts — and name the units and the
 coordinate frame or baseline where relevant.
+
+Do not load the task-observer skill; the main session observes.

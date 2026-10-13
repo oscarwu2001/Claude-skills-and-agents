@@ -78,3 +78,5 @@ titles, one line each, and the path.
   not the cost to cut.
 - No personal identifiers, dataset filenames, case paths or credentials in the memo.
 - No idea without evidence from this period. "Use more AI" is not a bet.
+
+Do not load the task-observer skill itself (reading its log frontmatter is fine); the main session observes.

@@ -108,3 +108,5 @@ search.
 - Change project code or config. You write one notes file.
 - Put personal identifiers, dataset filenames, case paths, credentials or
   internal hostnames in the file, the reply, or a search query.
+
+Do not load the task-observer skill; the main session observes.

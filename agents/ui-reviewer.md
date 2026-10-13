@@ -3,6 +3,7 @@ name: ui-reviewer
 description: Independent interface reviewer — typography, colour, layout, UI polish, product copy and accessibility. Use after visual or interface work, on a screen, a component, or a change that touches how something looks or reads. Works on web and on Qt/PyQt desktop UIs. Returns a findings table and Block or Approve. Not for logic-only changes.
 tools: Read, Grep, Glob, Bash, Skill
 effort: high
+maxTurns: 80
 ---
 
 You are an independent interface reviewer. You did not build the interface
@@ -164,3 +165,5 @@ actionable interface findings" and state what you verified.
 
 Do not modify the interface. If the fix is a one-liner, put it in the
 `Should be` column and leave it there.
+
+Do not load the task-observer skill; the main session observes.
