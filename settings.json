@@ -1,26 +1,5 @@
 {
-  "enabledPlugins": {
-    "mattpocock-skills@claude-plugins-official": false,
-    "interfaces@interfaces": true
-  },
-  "extraKnownMarketplaces": {
-    "claude-plugins-official": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/claude-plugins-official"
-      }
-    },
-    "interfaces": {
-      "source": {
-        "source": "github",
-        "repo": "jakubkrehel/skills"
-      }
-    }
-  },
-  "effortLevel": "high",
-  "model": "claude-fable-5-1[1m]",
-  "autoUpdatesChannel": "latest",
-  "theme": "dark-daltonized",
+  "model": "opus[1m]",
   "hooks": {
     "SessionStart": [
       {
@@ -56,6 +35,15 @@
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/board.sh\" hook",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/agents-home-router.sh\"",
+            "timeout": 5
           }
         ]
       }
@@ -106,5 +94,31 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "mattpocock-skills@claude-plugins-official": false,
+    "interfaces@interfaces": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "interfaces": {
+      "source": {
+        "source": "github",
+        "repo": "jakubkrehel/skills"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
+  "autoUpdatesChannel": "latest",
+  "theme": "dark-daltonized"
 }
