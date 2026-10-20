@@ -43,7 +43,7 @@ Never: read a file over ~300 lines whole to find one part; `find /` or recursive
 - **Short helpers.** A helper's cost grows with the square of its length, because every turn re-reads its whole context. Split long delegated work into phases of about an hour, each a fresh helper; never one multi-hour run.
 - **Load the part, not the skill.** When a skill points at a `references/` file for the current step, read that file alone. Big skills (graphify, task-observer, archify) are never loaded "just in case".
 - **Logs to files.** Anything longer than a screen goes to a file; return the path and the lines that matter.
-- **Context window.** `/clear` between unrelated tasks; `/compact` only at a phase boundary; near ~120k tokens mid-phase → `/handoff` and start fresh.
+- **Context window.** `/clear` between unrelated tasks; `/compact` only at a phase boundary. The `context-cap` hook measures the real context each prompt: past 200K it asks for a handoff at the next stopping point, past 400K before anything else. The handoff goes to the file it names, and the next session in that project is pointed at it.
 
 # Hook briefs
 
