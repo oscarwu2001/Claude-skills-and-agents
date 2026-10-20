@@ -42,23 +42,54 @@ and each Windows-drive project's auto-memory; its header says what stays
 per-install and why. For graphify, put a wrapper at `~/.local/bin/graphify`
 that runs `exec graphify.exe "$@"` rather than installing a second copy.
 
-## Shadow router
+## Context cap
 
-`hooks/route-shadow.sh` is a shadow-mode router in the style of a System One
-model: on every prompt, haiku classifies the request into a work mode with a
-confidence (in the background, about $0.004 each), and the skill or agent the
-main model actually used is logged beside it. It injects and blocks nothing.
-The log (`route-shadow/log.jsonl`, never tracked) holds ids, times, modes and
-route names, never prompt text. After a week or two:
+`hooks/context-cap.sh` stops a main session from growing until every turn
+re-reads hundreds of thousands of tokens. On each prompt it reads the last
+turn's usage from the session transcript. Past 200K tokens it asks for a
+handoff at the next stopping point, once per 50K step. Past 400K it asks on
+every prompt, before any other work, unless you have said to carry on.
+
+The handoff goes to `~/.claude/handoffs/<project>/<date>-<session>.md`, which
+is never tracked. When you `/clear` or start a new session in the same
+project, the hook points it at the newest handoff that is under 14 days old.
+The session renames that file to `*.done.md` once it has picked it up.
+
+Set `CONTEXT_CAP_SOFT` or `CONTEXT_CAP_HARD` (in tokens) to move the lines,
+and turn it off with `mkdir -p ~/.claude/context-cap && touch ~/.claude/context-cap/off`.
+In WSL, add its `SessionStart` (`startup|clear`) and `UserPromptSubmit` entries
+from `settings.json` to WSL's own settings.
+
+The reason: from 23 September to 20 October, 90% of main-session turns ran
+above 120K context. One session averaged 494K over 2,229 turns. Re-reading the
+cached context was 76% of main-session cost, and the old "hand off near 120K"
+rule in `CLAUDE.md` never fired on its own.
+
+## Helper reminders (Agents Home)
+
+`hooks/agents-home-router.sh` comes with the Agents Home app. When a prompt
+fits one of the agents (by keyword), it adds a one-line reminder to use that
+agent. It names the house agents, `reviewer` and `runner`, and stays silent
+on background task notifications and helper hand-backs. The app also installed `code-reviewer` and
+`test-runner`, which duplicated `reviewer` and `runner`. They are retired to
+`agents-retired/`, which is not tracked. If an app update reinstalls them or
+rewrites the hook, move them out and re-apply the change.
+
+## Shadow router (off)
+
+`hooks/route-shadow.sh` was a shadow-mode router. On every prompt, haiku
+classified the request into a work mode with a confidence, and the skill or
+agent the main model actually used was logged beside it. It is off since
+20 October 2026 (`route-shadow/off`). Over 14 days it classified 976 prompts
+for $19.31. At confidence 0.85 or higher it agreed with the route actually
+taken only 21% of the time, because most routing happens when a helper
+finishes, not at the user's prompt. So a prompt-level router would not help.
+The log stays in `route-shadow/log.jsonl`, which is never tracked. To rerun
+the experiment, delete `route-shadow/off`, then:
 
 ```bash
 python3 ~/.claude/hooks/route-shadow-report.py      # `python` on Windows
 ```
-
-High agreement at high confidence means a confidence-gated router could safely
-suggest routes; confident disagreements show where routing goes wrong. Turn it
-off with `touch ~/.claude/route-shadow/off`. In WSL, add its `UserPromptSubmit`
-and `PreToolUse` entries from `settings.json` to WSL's own settings.
 
 ## Parallel chats on one repo
 
@@ -130,6 +161,34 @@ git -C ~/.claude push
 
 After a bump, re-check the "do not load" table in `skills/ecc/SKILL.md`: a new
 ECC item may duplicate a local skill or agent.
+
+## Change log
+
+**2026-10-20.** These changes come from the Agents Home report for 23 September
+to 20 October (396 helper runs) and from the session transcripts.
+
+- **Added `hooks/context-cap.sh`** (see [Context cap](#context-cap)), wired to
+  `UserPromptSubmit` and `SessionStart` in `settings.json`. The context-window
+  line in `CLAUDE.md` now points at it instead of "near ~120k → /handoff".
+- **`agents/runner.md`** gained a `## Windows` section: Git Bash path forms,
+  PowerShell called through `powershell.exe -Command`, script files when a
+  command needs nested quotes, no `sleep` polling, and Read size limits.
+  runner and test-runner had the highest tool-error rates (18% and 12%),
+  mostly PowerShell syntax and backslash paths sent to Git Bash. It also took
+  over test-runner's triggers and the README fallback for finding the test
+  command.
+- **`agents/reviewer.md`** took code-reviewer's output contract. The first line
+  is the bare `PASS` or `FAIL`. Each finding is `file:line`, what goes wrong and
+  when, and the smallest fix, with no style opinions that no rule asks for.
+  It also took the rule against repeating patient identifiers. Its
+  description keeps branch and PR reviews with `/code-review`. 63 of 133
+  review runs had put their verdict somewhere other than the first line, so
+  the report could not count verdicts.
+- **Retired `code-reviewer` and `test-runner`** to `agents-retired/`, and
+  pointed `hooks/agents-home-router.sh` at `reviewer` and `runner`. The hook
+  also now ignores background task notifications and helper hand-backs, which it used to answer
+  with suggestions.
+- **Turned off the shadow router** (see [Shadow router](#shadow-router-off)).
 
 ## Update Matt Pocock's skills
 
