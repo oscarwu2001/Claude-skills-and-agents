@@ -65,6 +65,50 @@ above 120K context. One session averaged 494K over 2,229 turns. Re-reading the
 cached context was 76% of main-session cost, and the old "hand off near 120K"
 rule in `CLAUDE.md` never fired on its own.
 
+## Verdict ledger
+
+`hooks/verdict-ledger.sh` makes review verdicts countable. The three review
+agents (`reviewer`, `ui-reviewer`, `silent-failure-hunter`) end every report
+with one line:
+
+```
+VERDICT: FAIL findings=3 blocking=1 sha=3f2a9c1
+```
+
+`PASS` means no blocking finding, `FAIL` at least one, and `BLOCKED` that the
+review could not be finished. `findings` counts everything reported,
+`blocking` counts what must be fixed, and `sha` is the commit reviewed (with
+`+` if uncommitted changes were reviewed too, `none` outside git).
+
+When one of those agents stops, the hook reads that line and adds a row to
+`~/.claude/verdict-ledger/verdicts.tsv`, which is never tracked. If the line
+is missing or does not add up (a `PASS` with blocking findings, say), the hook
+sends the agent back once to add it. If it is still missing the second time,
+the agent is let go and the row says `MISSING`. `UNREAD` means the hook could
+not read the agent's final message at all.
+
+When the main session acts on a `FAIL`, by fixing it or by deciding it was
+wrong, it records the outcome:
+
+```bash
+bash ~/.claude/hooks/verdict-ledger.sh list
+bash ~/.claude/hooks/verdict-ledger.sh outcome 12 real      # or false-alarm
+```
+
+`real` means at least one blocking finding was a real bug. After a few weeks
+the ledger shows how often each reviewer's `FAIL`s were real. That is the
+number to look at before cutting any reviewer.
+
+Turn it off with `mkdir -p ~/.claude/verdict-ledger && touch ~/.claude/verdict-ledger/off`.
+In WSL, add the `SubagentStop` entry from `settings.json` to WSL's own settings.
+
+The reason: 63 of 133 review runs from 23 September to 20 October put their
+verdict where no script could find it, so the Agents Home report counted none.
+Research on 22 October found that stacking reviewers on one model adds little,
+because their mistakes overlap, while checks that actually run the code add
+real signal. The ledger measures this for our own pipeline before anything is
+cut.
+
 ## Helper reminders (Agents Home)
 
 `hooks/agents-home-router.sh` comes with the Agents Home app. When a prompt
@@ -224,6 +268,27 @@ turn.
   hidden skills about 240: 620 in all, or 1.4%. No study has tested personal
   `CLAUDE.md` files, so this is an experiment. If review results or session
   cost get worse over the next two weeks, revert it.
+
+**2026-10-22, verdict ledger.** Step 1 of the review plan from the same
+research: measure what review is worth before cutting any reviewer.
+
+- **Added `hooks/verdict-ledger.sh`** (see [Verdict ledger](#verdict-ledger)),
+  wired to `SubagentStop` in `settings.json` for the three review agents. It
+  writes to the shim log each time it sends an agent back.
+- **`agents/reviewer.md`, `ui-reviewer.md` and `silent-failure-hunter.md`**
+  now end with the same `VERDICT:` line. It replaces reviewer's bare
+  `PASS`/`FAIL` first line and ui-reviewer's closing Block or Approve (Block
+  is now `FAIL`, Approve is `PASS`). silent-failure-hunter counts its high
+  and medium findings as blocking. `/code-review` keeps the closing line
+  instead of the opening one.
+- **`agents/builder.md`**: the handoff gained an `Evidence:` line. It lists
+  the checks the builder ran but did not write in that phase (existing tests,
+  the project's gate, running the app, before/after output), with results and
+  log paths, or says `none independent:` and why. Tests the builder wrote
+  itself stay under `Tests:`, because in the research such tests did not
+  change outcomes.
+- **`CLAUDE.md`**: one line telling the main session to record the outcome
+  each time it acts on a `FAIL`.
 
 **2026-10-20.** These changes come from the Agents Home report for 23 September
 to 20 October (396 helper runs) and from the session transcripts.

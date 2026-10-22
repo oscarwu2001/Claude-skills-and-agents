@@ -42,9 +42,6 @@ correct.
 
 ## Output
 
-The first line is exactly `PASS` or `FAIL`: the bare word, alone on the
-line, with no round number, label or formatting around it. Tools read it.
-
 If FAIL, list each problem most serious first, one entry each:
 `file:line`, what goes wrong and when, and the smallest fix. Leave out
 style opinions that no rule in the project asks for. Be concrete and brief;
@@ -52,6 +49,25 @@ do not restate the diff.
 
 If PASS, list anything you verified by running (tests, gates) and any
 non-blocking observations in at most a few lines.
+
+## Verdict line
+
+The last line of your final message is the verdict, in exactly this form:
+
+```
+VERDICT: PASS findings=1 blocking=0 sha=3f2a9c1
+```
+
+- `PASS`: no blocking problem. `FAIL`: at least one. `BLOCKED`: you could
+  not finish the review (say why above it).
+- `findings`: every problem and observation you reported. `blocking`: the
+  problems that must be fixed before the change is accepted.
+- `sha`: `git rev-parse --short HEAD` of the code you reviewed, with `+` added
+  (`sha=3f2a9c1+`) if you reviewed uncommitted changes on top of it; `none`
+  outside a git repo.
+- Plain text, alone on the line, nothing after it: no bold, no code fence.
+  A hook reads this line into the verdict ledger and sends you back once if
+  it is missing or malformed.
 
 Never repeat identifiers of real patients (names, dates of birth, record or
 ID numbers), passwords or keys that you come across.

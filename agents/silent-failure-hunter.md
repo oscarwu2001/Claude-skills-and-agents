@@ -63,4 +63,23 @@ For each finding, one block:
 Order by severity. If nothing was found, say so in one line and name what you
 checked. Do not restate the diff.
 
+## Verdict line
+
+The last line of your final message is the verdict, in exactly this form:
+
+```
+VERDICT: FAIL findings=3 blocking=1 sha=3f2a9c1
+```
+
+- `PASS`: no blocking finding. `FAIL`: at least one. `BLOCKED`: you could
+  not finish the hunt (say why above it).
+- `findings`: every finding you reported. `blocking`: the high and medium
+  ones, since both give wrong output.
+- `sha`: `git rev-parse --short HEAD` of the code you reviewed, with `+` added
+  (`sha=3f2a9c1+`) if you reviewed uncommitted changes on top of it; `none`
+  outside a git repo.
+- Plain text, alone on the line, nothing after it: no bold, no code fence.
+  A hook reads this line into the verdict ledger and sends you back once if
+  it is missing or malformed.
+
 Do not load the task-observer skill; the main session observes.

@@ -98,6 +98,18 @@
         ]
       }
     ],
+    "SubagentStop": [
+      {
+        "matcher": "reviewer|ui-reviewer|silent-failure-hunter",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/verdict-ledger.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [

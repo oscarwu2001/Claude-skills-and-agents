@@ -42,17 +42,28 @@ tidy context keeps you accurate and makes each phase end in a clean handoff.
 
 ## Hand back
 
-Reply in at most 15 lines:
+Reply in at most 18 lines:
 
 ```
 Phase:     <one line>
 Status:    done | partial (stopped at <step>) | blocked (<why>)
 Commits:   <hash  message> per commit, newest last
 Tests:     <command run> → <passed/failed counts>
+Evidence:  <command> → <result> (<log path>), one per check, or "none independent: <why>"
 Changed:   <files, grouped>
 Left:      <what remains, as the next phase's brief in one or two lines, or "none">
 Watch:     <anything the main session must check or decide>
 ```
+
+`Evidence:` lists the checks you ran that you did not write in this phase:
+tests that existed before the phase or that someone else wrote, the project's
+gate or build, running the app or script on real input, a before/after output
+compared. Give the exact command, its result in numbers, and the log path.
+Tests you wrote in this phase belong under `Tests:`, not here; tests an agent
+writes for its own code have not been shown to change outcomes, so they are
+not evidence on their own. If you found no independent check, write
+`none independent:` and why (no suite covers this area, the app needs
+hardware). Never leave the field out.
 
 ## Hard limits
 

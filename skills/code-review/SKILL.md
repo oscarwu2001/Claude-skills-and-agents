@@ -65,7 +65,7 @@ Send a single message with two `Agent` tool calls. Use the `general-purpose` sub
 - "Standards axis only. Whether the diff does what was asked is the Spec sub-agent's job — skip correctness-against-the-request and scope findings; regressions, tests and security stay yours."
 - If a passing run of the fast test loop on this exact `HEAD` is already in the conversation (typically `/implement` just ran it), pass that result and say "Tests already passed on this commit; don't re-run them." Otherwise let it run them.
 
-Keep its opening `PASS`/`FAIL` line and put its report under Standards. The **Spec** sub-agent stays `general-purpose`. If the `reviewer` agent is missing, use `general-purpose` for both, as upstream does.
+Keep its closing `VERDICT:` line and put its report under Standards. The **Spec** sub-agent stays `general-purpose`. If the `reviewer` agent is missing, use `general-purpose` for both, as upstream does.
 <!-- END LOCAL INTEGRATION -->
 
 **Standards sub-agent prompt** — include:
