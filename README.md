@@ -151,6 +151,7 @@ added cost is within noise: a hook run takes about 400 ms either way.
 | `agents-home-router.sh` | one row per tip shown, named by agent (`reviewer`, `runner`, ...) |
 | `board.sh` | `start` (counts), `same-folder`, `updates` (count), `edit-warning` |
 | `observer-brief.sh` | `brief` (open observations, notes) |
+| `verdict-ledger.sh` | `block` (agent sent back for its verdict line, by agent name) |
 
 Once a month, run:
 
@@ -166,7 +167,6 @@ longer happens, or nothing triggers it any more.
 To wire another hook, add `. "$C/hooks/firelog.sh" 2>/dev/null || firelog() { :; }`
 near its top, where `$C` is the `.claude` folder, and `firelog <hook> <event> [detail]`
 where it injects or blocks; use the script's file name as `<hook>`.
-`verdict-ledger.sh` is not wired yet, because it was still on its branch.
 `agents-home-router.sh` belongs to the Agents Home app, so re-add its two lines
 if an app update rewrites it.
 

@@ -102,6 +102,7 @@ esac
 
 # ---- SubagentStop hook ----
 [ -e "$D/off" ] && exit 0
+. "$C/hooks/firelog.sh" 2>/dev/null || firelog() { :; }   # shim log: only the blocks
 in=$(cat)
 field() { printf '%s' "$in" | tr -d '\r\n' | sed -n "s/.*\"$1\"[[:space:]]*:[[:space:]]*\"\([^\"\\\\]*\(\\\\.[^\"\\\\]*\)*\)\".*/\1/p" | head -1; }
 [ "$(field hook_event_name)" = SubagentStop ] || exit 0
@@ -183,6 +184,7 @@ if printf '%s' "$in" | tr -d '\r\n' | grep -q '"stop_hook_active"[[:space:]]*:[[
 fi
 mkdir -p "$D/asked" 2>/dev/null && : > "$mark" 2>/dev/null
 find "$D/asked" -type f -mtime +2 -delete 2>/dev/null
+firelog verdict-ledger block "$agent"
 printf '{"decision":"block","reason":"%s"}\n' "$(esc "verdict-ledger hook: $why. Your final message must end with the verdict line, alone and in plain text:
 VERDICT: <PASS|FAIL|BLOCKED> findings=<n> blocking=<n> sha=<short sha>
 PASS = no blocking finding, FAIL = at least one, BLOCKED = could not finish the review. findings = everything you reported; blocking = what must be fixed before the change is accepted. sha = git rev-parse --short HEAD of the code you reviewed, with + added if you reviewed uncommitted changes, or none outside a git repo.
