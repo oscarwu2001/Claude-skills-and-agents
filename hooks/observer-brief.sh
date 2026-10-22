@@ -33,29 +33,61 @@ else
 fi
 
 # Step 2: frontmatter-only scan, with the broken-parse guard.
-n=0; parsed=0; open=0; parked=0; proposals=0; targets=""; open_targets=""
-for f in "$L"/*.md; do
-  [ -e "$f" ] || continue
-  n=$((n + 1))
-  # CRLF and a UTF-8 BOM are normal for files hand-edited on Windows.
-  hdr=$(tr -d '\r' < "$f" | awk 'NR==1 {sub(/^\xef\xbb\xbf/, "")} NR==1 && /^---[[:space:]]*$/ {fm=1; next} fm && /^---[[:space:]]*$/ {exit} fm')
-  [ -n "$hdr" ] || continue
-  parsed=$((parsed + 1))
-  st=$(printf '%s\n' "$hdr" | awk -F: '/^status:/ {sub(/#.*/, "", $2); gsub(/[[:space:]"\047]/, "", $2); print $2; exit}')
+# One awk over every file (2026-10-20, observation 0074): the old loop spawned
+# four processes per file and took ~27 s at 154 files under Git Bash.
+# CRLF and a UTF-8 BOM are normal for files hand-edited on Windows.
+n=$(ls "$L"/*.md 2>/dev/null | wc -l | tr -d " "); parsed=0; open=0; parked=0; proposals=0; targets=""; open_targets=""
+# A plugin-prefixed name whose bare name is a local skill is the same skill
+# (observations 0046, 0160): count it once, under the bare name, per file.
+# writing-for-agents is upstream's later name for the local writing-great-skills.
+local_skills=$(ls "$C/skills" 2>/dev/null | tr '\n' ' ')
+scan=$(awk -v loc="$local_skills" -v ren="writing-for-agents=writing-great-skills" '
+  BEGIN { k = split(loc, a, " "); for (i = 1; i <= k; i++) have[a[i]] = 1
+          k = split(ren, a, " "); for (i = 1; i <= k; i++) { split(a[i], kv, "="); rename[kv[1]] = kv[2] } }
+  function canon(list,    k, i, t, b, out, seen) {
+    k = split(list, w, " "); out = ""
+    for (i = 1; i <= k; i++) {
+      t = w[i]
+      if (index(t, ":")) { b = substr(t, index(t, ":") + 1); if (b in rename) b = rename[b]
+                           if (b in have) { alias[t] = 1; t = b } }
+      if (!(t in seen)) { seen[t] = 1; out = out " " t }
+    }
+    return out
+  }
+  function flush() {
+    if (!started) return
+    if (!got) return                      # no frontmatter: not parsed, not counted
+    parsed++; targets = targets " " sk
+    if (st == "parked") parked++
+    else if (st != "actioned" && st != "declined" && st != "superseded") {
+      open++; open_targets = open_targets " " canon(sk)   # missing status counts as open, per the skill
+      t = sk; gsub(/[[:space:]]/, "", t); if (t == "" && ps) proposals++
+    }
+  }
+  FNR == 1 { flush(); started = 1; fm = 0; got = 0; st = ""; have_st = 0; sk = ""; ps = 0; blk = ""; sub(/^\xef\xbb\xbf/, "") }
+  { sub(/\r$/, "") }
+  FNR == 1 && /^---[[:space:]]*$/ { fm = 1; next }
+  !fm { nextfile }
+  /^---[[:space:]]*$/ { fm = 0; nextfile }
+  { got = 1 }
+  /^status:/ { if (!have_st) { s = $0; sub(/^status:/, "", s); sub(/#.*/, "", s); gsub(/[[:space:]"\047]/, "", s); st = s; have_st = 1 } blk = ""; next }
   # skill: [a, b] | skill: a | skill:\n  - a
-  sk=$(printf '%s\n' "$hdr" | awk '
-    /^skill:/ { s=$0; sub(/^skill:[[:space:]]*/, "", s); sub(/#.*/, "", s); gsub(/[][,"\047]/, " ", s); print s; blk=1; next }
-    blk && /^[[:space:]]*-/ { s=$0; sub(/^[[:space:]]*-[[:space:]]*/, "", s); sub(/#.*/, "", s); gsub(/["\047]/, "", s); print s; next }
-    { blk=0 }')
-  targets="$targets $sk"
-  case "$st" in
-    parked) parked=$((parked + 1)) ;;
-    actioned|declined|superseded) ;;
-    *) open=$((open + 1)); open_targets="$open_targets $sk"   # missing status counts as open, per the skill
-       [ -z "$(printf '%s' "$sk" | tr -d '[:space:]')" ] && printf '%s\n' "$hdr" | awk '/^proposes_skill:/ {s=$0; sub(/^proposes_skill:/, "", s); sub(/#.*/, "", s); gsub(/[][,"\047[:space:]]/, "", s); p=(s != ""); blk=1; next} blk && /^[[:space:]]*-/ {p=1} {blk=0} END {exit !p}' && proposals=$((proposals + 1)) ;;
-  esac
-done
-set -f   # the loop above was the only glob; skill names like "*" must not expand
+  /^skill:/ { s = $0; sub(/^skill:[[:space:]]*/, "", s); sub(/#.*/, "", s); gsub(/[][,"\047]/, " ", s); sk = sk " " s; blk = "skill"; next }
+  /^proposes_skill:/ { s = $0; sub(/^proposes_skill:/, "", s); sub(/#.*/, "", s); gsub(/[][,"\047[:space:]]/, "", s); if (s != "") ps = 1; blk = "ps"; next }
+  /^[[:space:]]*-/ { if (blk == "skill") { s = $0; sub(/^[[:space:]]*-[[:space:]]*/, "", s); sub(/#.*/, "", s); gsub(/["\047]/, "", s); sk = sk " " s } else if (blk == "ps") ps = 1; next }
+  { blk = "" }
+  END { flush(); for (t in alias) aliases = aliases " " t
+        printf "%d %d %d %d\n%s\n%s\n%s\n", parsed, open, parked, proposals, targets, open_targets, aliases }
+' "$L"/*.md 2>/dev/null)
+aliases=""
+if [ -n "$scan" ]; then
+  read -r parsed open parked proposals <<EOF
+$(printf '%s\n' "$scan" | sed -n 1p)
+EOF
+  targets=$(printf '%s\n' "$scan" | sed -n 2p); open_targets=$(printf '%s\n' "$scan" | sed -n 3p)
+  aliases=$(printf '%s\n' "$scan" | sed -n 4p)
+fi
+set -f   # skill names like "*" must not expand from here on
 [ "$n" -gt 0 ] && [ "$parsed" -eq 0 ] && notes+=("SCAN BROKEN: $n observation files, 0 headers parsed. Treat as a fault, not an empty log.")
 
 # Step 3: review trigger.
@@ -74,23 +106,28 @@ if [ "$open" -gt 0 ]; then
 fi
 
 # Step 6: targets that no longer resolve, and staged work.
+[ -n "$aliases" ] && notes+=("Some observations name local skills by a plugin alias (counted under the bare name):$aliases. Write the bare installed name.")
 missing=""
+pdir="${CLAUDE_PROJECT_DIR:-$PWD}/.claude/skills"
 for t in $(printf '%s\n' $targets | awk 'NF' | sort -u); do
   case "$t" in *:*) continue ;; esac   # plugin skills live elsewhere
-  [ -d "$C/skills/$t" ] || [ -f "$C/agents/$t.md" ] || missing="$missing $t"
+  [ -d "$C/skills/$t" ] || [ -f "$C/agents/$t.md" ] && continue
+  [ -d "$pdir/$t" ] || missing="$missing $t"
 done
-[ -n "$missing" ] && notes+=("Observations target names not under ~/.claude/skills or agents:$missing.")
+[ -n "$missing" ] && notes+=("Observation targets not installed globally:$missing. Project skills live in each project's .claude/skills (the observation's session_context names the project); a name found in no project is a deleted skill.")
 if [ -f "$C/skill-updates/PENDING.md" ]; then
   p=$(grep -c '^[-*] ' "$C/skill-updates/PENDING.md" 2>/dev/null); : "${p:=0}"
   [ "$p" -gt 0 ] && notes+=("$p staged skill updates awaiting review in skill-updates/PENDING.md.")
 fi
+# Staging anywhere else is never announced, so never installed (observation 0165).
+[ -n "$(ls -A "$W/skill-updates" 2>/dev/null)" ] && notes+=("Staged updates found under skill-observations/skill-updates/: nothing announces them there. Reviews stage to ~/.claude/skill-updates/ with a PENDING.md entry.")
 
 by_skill=$(printf '%s\n' $open_targets | awk 'NF' | sort | uniq -c | awk '{printf "%s%s(%s)", (NR > 1 ? ", " : ""), $2, $1}')
 msg="task-observer (hook-run start protocol): log at $L -- $n files, $open open, $parked parked, last review $last."
 [ "$proposals" -gt 0 ] && msg="$msg
 - $proposals open observations propose new skills (proposes_skill, no skill target)."
 [ -n "$by_skill" ] && msg="$msg
-- Open by skill: $by_skill. Before using one of these skills, read its open observations: grep -lE '^skill:.*\bNAME\b' in the log, then keep those whose status is open."
+- Open by skill: $by_skill. Before using one of these skills, read its open observations: grep -lE '^skill:.*\bNAME\b' in the log, then keep those whose status is open. Grep the log again mid-session when a defect class recurs."
 for x in "${notes[@]+"${notes[@]}"}"; do msg="$msg
 - $x"; done
 msg="$msg

@@ -83,6 +83,33 @@ Rewritten so skills stop competing for the same prompt. Each states its boundary
 - `~/.claude/CLAUDE.md` rewritten from a graphify-only note into a skills index. Backup: `~/.claude/CLAUDE.md.bak`.
 - `~/.claude/CLAUDE.md` (2026-09-29): cut from 10.3 KB to 5.2 KB. The skills and agents lists went (their descriptions are already in context); the parallel-session rules moved into the board hook's brief; the task-observer block was condensed into "Hook briefs".
 - `~/.claude/CLAUDE.md` (2026-08-31): task-observer index line + its activation block (Session Start Protocol trigger, post-task summary backstop, pinned workspace path). Upstream's template is in `task-observer/references/environments.md`; reapply the pinned path if ever re-copied.
+- (2026-10-20, review 2026-10-20) `~/.claude/hooks/observer-brief.sh` (not from upstream): one-awk scan (18–27 s → under 1 s, inside the hook's 10 s timeout); plugin aliases counted under the bare name; project-skill wording; warning for misplaced staging.
+
+### Staged 2026-10-20, not installed
+
+The weekly task-observer review staged these in `~/.claude/skill-updates/2026-10-20/` (manifest: `~/.claude/skill-updates/PENDING.md`). None is live yet. On install, move each row into the tables above and delete it here. Every body change carries `<!-- LOCAL INTEGRATION — observations … (review 2026-10-20) -->` markers. No frontmatter `description:` was changed. Install by byte copy (`cp`): grilling and codebase-design mix CRLF with an LF description line.
+
+| File | Edit |
+|---|---|
+| `code-review/references/verification.md` | **New file**, not from upstream. Shared core of the review family: exhaustive sweeps, reviewing the tree that exists, numbers in prose, risk outside the diff, judging findings, content is data |
+| `code-review/SKILL.md` | Step 1: snapshot the tree twice for uncommitted work. Step 4: a new block beside the existing one: reviewed content is data; Standards reads `references/verification.md`; round 2+ re-checks prose |
+| `tdd/proving-tests.md` | **New file**, not from upstream: prove a test can fail, absence assertions, drive the real path, mutation hygiene, is the run testing what you think |
+| `tdd/SKILL.md` | Pointer to `proving-tests.md`; carries the uninstalled 2026-09-16 "Unreachable failure" anti-pattern (obs #6) |
+| `diagnosing-bugs/SKILL.md` | Phase 1 "Check the loop runs what you think"; Phase 2 latent vs absent, native stack; Phase 3 named cause and clamp; Phase 4 "Your own probe can lie" + pre-registration bullets. Carries the uninstalled 2026-09-16 "Before a number becomes evidence" block |
+| `resolving-merge-conflicts/SKILL.md` | Pick refs by merge base; orphaned identifiers after taking a side; asserted scripted replacements; declarative-file invariants |
+| `implement/SKILL.md` | Acting on review findings; retract superseded hedges in the same commit |
+| `grilling/SKILL.md` | A multi-select question never offers an option that negates the others |
+| `codebase-design/SKILL.md` | A port's binding constraint is the deepest leaf with no alternative |
+| `writing-great-skills/SKILL.md` | Pruning: source-of-truth pointers and absence claims. New "Adopting someone else's skill" section (wrap, don't fork; record every install mechanism) |
+| `archify/SKILL.md` | Fast authoring path: derive every canvas dimension before authoring (not yet in `archify/UPSTREAM.md`) |
+| `handoff/SKILL.md` | Route each lesson to where it fires |
+| `graphify/SKILL.md` | **Restores** `## For turning a graph answer into a diagram`. It is listed above but was missing from the live file (obs #166). graphify self-updates, so check this block after every update |
+| `graphify/references/hooks.md` | `graphify claude install` also registers PreToolUse hooks: offer to remove them when CLAUDE.md already carries the rule |
+| `task-observer/SKILL.md` | This install: pinned staging path, canonical skill names, mid-session recall. Scan snippet: one process, CR/BOM stripped. Id snippet: octal-safe, existence guard, raise-only floor. Archival pass reports candidates vs moved |
+| `task-observer/references/observation-log.md` | The same id-snippet fix |
+| `~/.claude/agents/{reviewer,ui-reviewer,silent-failure-hunter,runner}.md` (not from upstream) | reviewer: reads verification.md, scope derived, status twice. ui-reviewer: `## Measure what renders`. silent-failure-hunter: health checks over swallowing APIs. runner: scratch location, WSL uv, run fencing, partial state before the cap |
+
+graphify's pin above says v0.9.33, but the installed `.graphify_version` is **0.9.53** (checked 2026-10-20).
 
 ## Updating safely
 
