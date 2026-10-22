@@ -37,18 +37,21 @@ AGENTS=" reviewer ui-reviewer silent-failure-hunter "
 HEADER=$'timestamp\tproject\tsession\tagent\tagent_id\tsha\tverdict\tfindings\tblocking\toutcome'
 USAGE="usage: verdict-ledger.sh list [n] | outcome <row> real|false-alarm"
 
-# mkdir is atomic, so it serves as the lock between parallel appends and an
-# outcome rewrite. A lock left by a killed process is cleared after a minute.
+# Lock between parallel appends and an outcome rewrite: bash's noclobber
+# create is exclusive (O_EXCL). Not mkdir: WSL's uutils mkdir sometimes
+# succeeds on an existing directory under contention. Windows and WSL write
+# the same ledger, through WSL's hooks symlink. A lock left by a killed
+# process is cleared after a minute.
 lock() {
   local i
-  find "$D/.lock" -maxdepth 0 -mmin +1 -exec rmdir {} \; 2>/dev/null
+  find "$D/.lock" -maxdepth 0 -mmin +1 -delete 2>/dev/null
   for i in 1 2 3 4 5 6 7 8 9 10; do
-    mkdir "$D/.lock" 2>/dev/null && return 0
+    ( set -C; : > "$D/.lock" ) 2>/dev/null && return 0
     sleep 0.2
   done
   return 1
 }
-unlock() { rmdir "$D/.lock" 2>/dev/null; }
+unlock() { rm -f "$D/.lock"; }
 
 append() {  # fields in HEADER order, outcome excluded
   local IFS=$'\t' f row got=1 out=()
@@ -86,8 +89,9 @@ outcome)
   fi
   awk -F'\t' -v OFS='\t' -v r=$((row + 1)) -v v="$val" '
     NR == 1 { for (i = 1; i <= NF; i++) if ($i == "outcome") c = i }
-    NR == r { $c = v } { print }' "$L" > "$L.tmp" && mv "$L.tmp" "$L"
+    NR == r { $c = v } { print }' "$L" > "$L.tmp.$$" && mv "$L.tmp.$$" "$L"
   ok=$?
+  rm -f "$L.tmp.$$"
   unlock
   [ $ok -eq 0 ] || { echo "verdict-ledger: could not rewrite $L" >&2; exit 1; }
   printf '%s\t%s\n' "$row" "$(sed -n "$((row + 1))p" "$L")"
@@ -152,8 +156,13 @@ if [ -n "$cwd" ]; then
   [ -n "$proj" ] || proj=$(basename "$cwd")
 fi
 now=$(date '+%Y-%m-%dT%H:%M:%S%z')
+# Marks an agent the hook has just sent back. It lives only until that
+# agent's next stop, so an agent continued later (SendMessage) is asked again.
+# Docs promise agent_id; without it, session + agent type stand in.
+mark="$D/asked/${aid:-$sid-$agent}"
 
 if [ -n "$found" ]; then
+  rm -f "$mark" 2>/dev/null
   append "$now" "$proj" "$sid" "$agent" "$aid" "$sha" "$v" "$nf" "$nb"
   exit 0
 fi
@@ -164,18 +173,16 @@ if [ -z "$seen" ]; then
   exit 0
 fi
 
-# Block once. stop_hook_active covers the documented case; the per-agent mark
-# makes sure a second block can never happen even if that flag is not set.
-mark="$D/asked/${aid:-none}"
+# Block once. stop_hook_active covers the documented case; the mark makes
+# sure a second block in a row can never happen even if that flag is not set.
 if printf '%s' "$in" | tr -d '\r\n' | grep -q '"stop_hook_active"[[:space:]]*:[[:space:]]*true' \
-   || { [ -n "$aid" ] && [ -e "$mark" ]; }; then
+   || [ -e "$mark" ]; then
+  rm -f "$mark" 2>/dev/null
   append "$now" "$proj" "$sid" "$agent" "$aid" "" "MISSING" "" ""
   exit 0
 fi
-if [ -n "$aid" ]; then
-  mkdir -p "$D/asked" 2>/dev/null && : > "$mark" 2>/dev/null
-  find "$D/asked" -type f -mtime +2 -delete 2>/dev/null
-fi
+mkdir -p "$D/asked" 2>/dev/null && : > "$mark" 2>/dev/null
+find "$D/asked" -type f -mtime +2 -delete 2>/dev/null
 printf '{"decision":"block","reason":"%s"}\n' "$(esc "verdict-ledger hook: $why. Your final message must end with the verdict line, alone and in plain text:
 VERDICT: <PASS|FAIL|BLOCKED> findings=<n> blocking=<n> sha=<short sha>
 PASS = no blocking finding, FAIL = at least one, BLOCKED = could not finish the review. findings = everything you reported; blocking = what must be fixed before the change is accepted. sha = git rev-parse --short HEAD of the code you reviewed, with + added if you reviewed uncommitted changes, or none outside a git repo.
