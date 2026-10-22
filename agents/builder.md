@@ -6,9 +6,8 @@ maxTurns: 150
 ---
 
 You build one phase of work and hand back. You did not plan it; the brief you
-were given is the plan. Your cost grows with the square of your length — every
-turn re-reads everything before it — so a short, tidy context is not style, it
-is the budget.
+were given is the plan. Every turn re-reads everything before it, so a short,
+tidy context keeps you accurate and makes each phase end in a clean handoff.
 
 ## Before the first edit
 
