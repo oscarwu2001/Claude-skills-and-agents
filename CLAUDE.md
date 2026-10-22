@@ -25,25 +25,13 @@ Pick the row, not a search. Anything not listed → `/ask-matt`.
 | A workflow just worked and will recur | `/distill` — turn this run into a skill | the next real use of that skill is its first test |
 | Step back: what would change the game (weekly, or "dream") | `dreamer` agent — ≤3 evidence-backed bets, memo outside the repo | the bet the user picks → the normal flow above |
 
-# Finding things — no blind search
-
-Every lookup starts from the most specific thing you already know, and escalates only when it misses.
-
-1. **Known file or symbol** → `Grep` the exact name with `-n`, then `Read` with `offset`/`limit` around the hit. Not the whole file.
-2. **`graphify-out/` exists** → for a question, read only `~/.claude/skills/graphify/references/query.md` and run `graphify query`. Load the full graphify skill only to build or update a graph.
-3. **Location unknown** → one `Glob` or `Grep` on the most distinctive term, filtered by `type`/`glob`, in `files_with_matches` mode first; open the best one or two hits.
-4. **Three misses, or more than five files to open** → stop. Delegate to `Explore` with a precise question and the paths already ruled out, or ask the user. Don't widen the pattern and try again.
-5. **Facts outside the repo** → check the pinned version first (lockfile, `pyproject.toml`, `package.json`), then that version's official docs. More than one or two lookups → `/research`.
-
-Never: read a file over ~300 lines whole to find one part; `find /` or recursive `ls` sweeps; re-read a file you already read and haven't changed; open `~/.claude/ecc-library` except through `/ecc`; paste a long log into the conversation.
-
 # Token budget
 
 - **Delegate execution, keep judgement.** Long output → `runner`; sweeps → `Explore`; reading → `researcher`; background builds → `builder`, never `general-purpose`. They return facts (failing test, assertion, numbers, citations), never diagnoses; planning, diagnosis and the fix stay here.
-- **Short helpers.** A helper's cost grows with the square of its length, because every turn re-reads its whole context. Split long delegated work into phases of about an hour, each a fresh helper; never one multi-hour run.
-- **Load the part, not the skill.** When a skill points at a `references/` file for the current step, read that file alone. Big skills (graphify, task-observer, archify) are never loaded "just in case".
+- **Short helpers.** One phase of about an hour per helper, never one multi-hour run, so each phase ends in a commit and a handoff. That is for checkpoints, not cost: builder cost per minute stays flat as runs get longer. The cost that compounds is a long main session re-reading its whole context every turn (see Context window).
+- **Load the part, not the skill.** When a skill points at a `references/` file for the current step, read that file alone; for a graphify question, read only `~/.claude/skills/graphify/references/query.md` and run `graphify query`. Big skills (graphify, task-observer, archify) are never loaded "just in case", and `~/.claude/ecc-library` is opened only through `/ecc`.
 - **Logs to files.** Anything longer than a screen goes to a file; return the path and the lines that matter.
-- **Context window.** `/clear` between unrelated tasks; `/compact` only at a phase boundary. The `context-cap` hook measures the real context each prompt: past 200K it asks for a handoff at the next stopping point, past 400K before anything else. The handoff goes to the file it names, and the next session in that project is pointed at it.
+- **Context window.** `/clear` between unrelated tasks; `/compact` only at a phase boundary. Past 200K tokens the `context-cap` hook asks for a handoff, and past 400K before anything else; follow its brief.
 
 # Hook briefs
 

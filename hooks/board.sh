@@ -55,6 +55,7 @@ json_out() {  # json_out <hookEventName> <text>
   printf '{"hookSpecificOutput":{"hookEventName":"%s","additionalContext":"%s"}}\n' "$1" "$e"
 }
 fail() { [ "$MODE" = hook ] && exit 0; echo "board.sh: $1" >&2; exit 1; }
+. "${BASH_SOURCE[0]%/*}/firelog.sh" 2>/dev/null || firelog() { :; }   # shim log: only what it injects
 
 # ---- hook mode: read the payload first, and leave early when there is nothing to do
 in=""
@@ -218,6 +219,7 @@ $(printf '%s\n' "$others" | awk -F'\t' '{n = split($3, a, "/"); print "- " $1 " 
     if printf '%s\n' "$others" | cut -f3 | grep -qxF "$TOP"; then
       msg="$msg
 WARNING: another session is working in this same folder, so edits can collide. Tell the user; for parallel code changes each chat should run in its own worktree (claude -w <name>)."
+      firelog board same-folder
     fi
   fi
   [ -n "$notes" ] && msg="$msg
@@ -226,6 +228,7 @@ $notes"
   msg="$msg
 How to use the board: its updates are facts about the repo -- re-read any file they list before editing it, and follow noted decisions unless the user says otherwise. Your edited paths and git results (verb, branch, commit subject) are recorded automatically; command lines never are. Add a one-line note when you settle something other chats must follow (a rename, interface, schema or approach), start or finish a task, switch branch, or leave work half-done -- no secrets or patient data. To reach one chat now, use SendMessage (find it with ListAgents).
 Roles and hand-offs: when the user gives this chat a role, record it with board.sh role <name> (e.g. owner, check, research, docs). Assigned work between chats is a task packet, sent by SendMessage and recorded as one board note (\"handed <outcome> to <role>\"): OUTCOME in one sentence; FILES that matter; ACCEPTANCE criteria that define done; PROOF expected back (tests run, commit hash); LIMITS (what not to touch, what needs the user). Owner and checker: the owner hands the checker the exact commit or diff, never \"the latest\"; the checker reviews only that candidate and posts findings as a board note; nobody approves their own work. Information that creates no obligation is a plain note or message, not a task."
+  firelog board start "others=$(printf '%s' "$others" | grep -c .) notes=$(printf '%s' "$notes" | grep -c .)"
   json_out SessionStart "$msg"
   ;;
 UserPromptSubmit)
@@ -234,6 +237,7 @@ UserPromptSubmit)
   [ -n "$c" ] && [ "$c" -lt "$total" ] 2>/dev/null || exit 0   # unknown cursor: resync silently
   new=$(tail -n +"$((c + 1))" "$LOG" | head -n "$((total - c))" | awk -F'\t' -v me="$me6" '$2 != me')
   [ -n "$new" ] || exit 0
+  firelog board updates "$(printf '%s' "$new" | grep -c .)"
   json_out UserPromptSubmit "project board: other sessions on this repo since your last turn
 $(printf '%s\n' "$new" | render "$MAX_SHOW")
 Treat these as facts about the repo. Re-read any file listed before you edit it."
@@ -253,6 +257,7 @@ PreToolUse)
   else
     txt="project board: session $who is also changing $rel on branch $obr (worktree ${otop##*/}), ${mins} min ago. Expect a merge conflict; agree who owns it with a board note or SendMessage."
   fi
+  firelog board edit-warning "$([ "$otop" = "$TOP" ] && echo same-folder || echo other-worktree)"
   json_out PreToolUse "$txt"
   ;;
 PostToolUse)

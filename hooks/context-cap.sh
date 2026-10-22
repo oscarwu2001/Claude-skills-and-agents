@@ -26,6 +26,7 @@ set -u
 C="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null)")/.." 2>/dev/null && pwd)"
 [ -n "$C" ] && [ -f "$C/hooks/context-cap.sh" ] || exit 0
 [ -e "$C/context-cap/off" ] && exit 0
+. "$C/hooks/firelog.sh" 2>/dev/null || firelog() { :; }   # shim log
 SOFT=${CONTEXT_CAP_SOFT:-200000}
 HARD=${CONTEXT_CAP_HARD:-400000}
 case $SOFT in ''|*[!0-9]*) SOFT=200000 ;; esac
@@ -53,6 +54,7 @@ SessionStart)
   newest=$(ls -t "$H"/*.md 2>/dev/null | grep -v '\.done\.md$' | head -n 1)
   [ -n "$newest" ] && [ -n "$(find "$newest" -mtime -14 2>/dev/null)" ] || exit 0
   p=$(winpath "$newest")
+  firelog context-cap pickup "$(basename "$newest")"
   emit SessionStart "Handoff waiting: $(basename "$newest")" \
 "context-cap: a handoff from an earlier session in this project is waiting at $p (last written $(date -r "$newest" '+%Y-%m-%d %H:%M')).
 If the user's first request continues that work, read the handoff before anything else, then rename it to end in .done.md so later sessions are not pointed at it again. If the request is unrelated, ignore it and do not mention it again."
@@ -87,6 +89,7 @@ f=$(winpath "$H/$(date +%Y-%m-%d)-${sid:0:8}.md")
 what="A handoff holds: the goal; the plan, marked done and next; decisions and why; files, branches and commits touched; helpers still running and what each is doing; open questions; the exact next step. Point at existing plan, spec or ledger files by path instead of copying them. Redact secrets and personal identifiers."
 
 if [ "$ctx" -ge "$HARD" ]; then
+  firelog context-cap hard "${k}K"
   emit UserPromptSubmit "Context ${k}K, past the $((HARD / 1000))K cap: handoff required (context-cap hook)" \
 "context-cap: this session's context is ${k}K tokens, past the $((HARD / 1000))K cap, and every turn re-reads all of it.
 Before other work this turn: tell the user in one line, bring the current step to a safe stop (no half-finished edit), write the handoff to $f, and ask the user to /clear or open a new session in this project; the new session is pointed at the file automatically. If the user has already said in this session to carry on past the cap, say the size in one line and continue.
@@ -106,6 +109,7 @@ if [ "$band" -le "$last" ]; then
 fi
 printf '%s\n' "$band" > "$st"
 find "$C/context-cap/state" -type f -mtime +14 -delete 2>/dev/null
+firelog context-cap soft "${k}K"
 emit UserPromptSubmit "Context ${k}K: handoff suggested at the next stopping point (context-cap hook)" \
 "context-cap: this session's context is ${k}K tokens, past the $((SOFT / 1000))K handoff line, and every turn re-reads all of it.
 At the next natural stopping point (not mid-edit), write a handoff to $f and suggest the user /clear or open a new session in this project; the new session is pointed at the file automatically.

@@ -1,6 +1,7 @@
 ---
 name: ecc
 description: Router to the ECC catalogue (affaan-m/ecc, 292 skills and 68 agents) kept unloaded at ~/.claude/ecc-library. Use when the user says "ecc", asks for an ECC skill, agent, command or rule by name, or wants a pattern for a domain no installed skill covers (a language, framework, database, ops or research workflow). Do not use for TDD, code review, planning, research, security review, simplification or knowledge-graph queries — those have local equivalents listed inside.
+disable-model-invocation: true
 ---
 
 # ECC router

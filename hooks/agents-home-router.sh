@@ -8,6 +8,7 @@
 # mentioned.
 
 dir="$(cd "$(dirname "$0")/.." && pwd)"
+. "$dir/hooks/firelog.sh" 2>/dev/null || firelog() { :; }   # shim log: one row per tip shown
 input="$(cat)"
 # The prompt field of the hook's JSON input, lower-cased, with escaped line
 # breaks and tabs turned into spaces (no jq needed; works with GNU and BSD sed).
@@ -21,7 +22,7 @@ case "$prompt" in *task-notification*|*'system notification - not user input'*|*
 tips=""
 fits() { printf '%s' "$prompt" | grep -Eq "$1"; }
 tip() { [ -f "$dir/agents/$1.md" ] && tips="$tips
-- $2"; }
+- $2" && firelog agents-home-router "$1"; }
 
 fits '\b(implement|refactor|fix|bug|feature|endpoint|pull request|merge request|commit|change the code|add (a|an|the) (function|method|class|test))\b' \
   && tip reviewer 'After you change code, give the change to the reviewer agent and fix what it finds before you say it is done.'

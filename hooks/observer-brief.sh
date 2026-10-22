@@ -19,6 +19,7 @@ set -u
 C="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null)")/.." 2>/dev/null && pwd)"
 # Could not locate our own .claude folder: inject nothing, so CLAUDE.md's fallback applies.
 { [ -n "$C" ] && [ -f "$C/hooks/observer-brief.sh" ]; } || { printf '{}\n'; exit 0; }
+. "$C/hooks/firelog.sh" 2>/dev/null || firelog() { :; }   # shim log
 W="$C/skill-observations"
 L="$W/observation-log"
 notes=()
@@ -133,6 +134,7 @@ for x in "${notes[@]+"${notes[@]}"}"; do msg="$msg
 msg="$msg
 Watch the whole session for: a user correction that names a missing rule in an installed skill; a skill rule you broke; a reusable workflow no skill covers. When one happens, load the task-observer skill and write the observation in that turn. Flush pending observations at every push, publish or handed-over deliverable. At each task end, report one line: observations written (ids) or none and why."
 
+firelog observer-brief brief "open=$open notes=${#notes[@]}"
 esc=$(printf '%s' "$msg" | tr -d '\000-\010\013-\037' | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/ /g' | awk 'NR > 1 {printf "\\n"} {printf "%s", $0}')
 printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$esc"
 exit 0

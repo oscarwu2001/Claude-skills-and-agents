@@ -75,6 +75,15 @@ Rewritten so skills stop competing for the same prompt. Each states its boundary
 | `task-observer` | (2026-10-13) Description now says main sessions only: helpers never receive the hook brief, so the old "if the brief is absent, load me" sentence made every helper load the 33 KB skill (44–73 loads per 28 days in the Agent's Home reports). |
 | `task-observer` | (2026-09-24) Upstream's description orders a full-skill load before every session's first tool call — ~8k tokens a session. The `SessionStart` hook now runs those checks; the description keeps the logging triggers and falls back to the upstream behaviour when the hook's brief is absent. Upstream text: see the pinned commit. |
 
+### Frontmatter flags (UNMARKED — reapply after any sync)
+
+`disable-model-invocation: true` takes a skill's description out of the model's context; `/name` still works. To undo, delete the line.
+
+| Skill | Why |
+|---|---|
+| `prototype` | (2026-10-22) Not used from 23 September to 20 October (Agents Home report) and not named in `~/.claude/CLAUDE.md`. Saves about 70 tokens a session. |
+| `ecc` (not from upstream) | (2026-10-22) Same reason; saves about 170 tokens a session. The model no longer reaches for ECC by itself when no local skill covers a domain. |
+
 ### Also changed
 
 - (2026-09-24) **Not from any upstream:** `documenting/` and (2026-09-29) `distill/` (skills), `~/.claude/agents/researcher.md`, (2026-10-06) `~/.claude/agents/dreamer.md`, (2026-10-13) `~/.claude/agents/builder.md`, `~/.claude/hooks/observer-brief.sh`. A sync never touches them.
@@ -82,6 +91,7 @@ Rewritten so skills stop competing for the same prompt. Each states its boundary
 - `agents/openai.yaml` added to `archify` and `graphify` so every skill carries interface metadata.
 - `~/.claude/CLAUDE.md` rewritten from a graphify-only note into a skills index. Backup: `~/.claude/CLAUDE.md.bak`.
 - `~/.claude/CLAUDE.md` (2026-09-29): cut from 10.3 KB to 5.2 KB. The skills and agents lists went (their descriptions are already in context); the parallel-session rules moved into the board hook's brief; the task-observer block was condensed into "Hook briefs".
+- `~/.claude/CLAUDE.md` (2026-10-22): cut from 6.1 KB to 5.0 KB, as an experiment (README change log). The "Finding things" lookup ladder went: it is coding technique the model already has. Its graphify `query.md` shortcut and the ecc-library rule moved under "Load the part, not the skill". "Short helpers" no longer says a helper's cost grows with the square of its length.
 - `~/.claude/CLAUDE.md` (2026-08-31): task-observer index line + its activation block (Session Start Protocol trigger, post-task summary backstop, pinned workspace path). Upstream's template is in `task-observer/references/environments.md`; reapply the pinned path if ever re-copied.
 - (2026-10-20, review 2026-10-20) `~/.claude/hooks/observer-brief.sh` (not from upstream): one-awk scan (18–27 s → under 1 s, inside the hook's 10 s timeout); plugin aliases counted under the bare name; project-skill wording; warning for misplaced staging.
 

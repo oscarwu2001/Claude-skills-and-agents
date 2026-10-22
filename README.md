@@ -91,6 +91,41 @@ the experiment, delete `route-shadow/off`, then:
 python3 ~/.claude/hooks/route-shadow-report.py      # `python` on Windows
 ```
 
+## Shim log
+
+Every hook that adds text to a conversation logs one line when it fires, so a
+rule that has stopped firing can be found and removed. This is the "track shims
+centrally" idea from Cursor's talk "Is the harness dead?". The hooks source
+`hooks/firelog.sh`, which appends `timestamp, hook, event, detail` to
+`~/.claude/shim-log/fires.tsv`. That file is never tracked. The detail is a
+size, a count or an agent name, never prompt text. Timed in Git Bash, the
+added cost is within noise: a hook run takes about 400 ms either way.
+
+| Hook | Events logged |
+|---|---|
+| `context-cap.sh` | `soft` and `hard` (context size), `pickup` (handoff file name) |
+| `agents-home-router.sh` | one row per tip shown, named by agent (`reviewer`, `runner`, ...) |
+| `board.sh` | `start` (counts), `same-folder`, `updates` (count), `edit-warning` |
+| `observer-brief.sh` | `brief` (open observations, notes) |
+
+Once a month, run:
+
+```bash
+bash ~/.claude/hooks/shim-report.sh
+```
+
+It lists each hook and event with its last fire and its count over 30 days.
+Once the log is 30 days old, it also flags anything silent for that long. A
+silent rule is a candidate to delete: either the problem it guarded against no
+longer happens, or nothing triggers it any more.
+
+To wire another hook, add `. "$C/hooks/firelog.sh" 2>/dev/null || firelog() { :; }`
+near its top, where `$C` is the `.claude` folder, and `firelog <hook> <event> [detail]`
+where it injects or blocks; use the script's file name as `<hook>`.
+`verdict-ledger.sh` is not wired yet, because it was still on its branch.
+`agents-home-router.sh` belongs to the Agents Home app, so re-add its two lines
+if an app update rewrites it.
+
 ## Parallel chats on one repo
 
 `hooks/board.sh` keeps a **project board** per git repo, in `.git/claude-board/`
@@ -163,6 +198,32 @@ After a bump, re-check the "do not load" table in `skills/ecc/SKILL.md`: a new
 ECC item may duplicate a local skill or agent.
 
 ## Change log
+
+**2026-10-22.** These changes follow research on Cursor's talk "Is the
+harness dead?" and the papers it cites. Instructions on how to code no longer
+make a current model better at coding, but they still cost tokens on every
+turn.
+
+- **Added the shim log** (see [Shim log](#shim-log)): `hooks/firelog.sh`,
+  `hooks/shim-report.sh`, and in each hook that injects text, one line to load
+  the helper plus one call per event.
+- **Trimmed `CLAUDE.md`** from 6.1 KB to 5.0 KB. The "Finding things" lookup
+  steps went, because the model already searches that way. The graphify
+  `query.md` shortcut and the ecc-library rule moved under "Load the part, not
+  the skill". "Short helpers" no longer says a helper's cost grows with the
+  square of its length: builder cost per minute stays flat, and the cost that
+  grows is a long main session.
+- **Hid `prototype` and `ecc` from the model** with `disable-model-invocation:
+  true`. `/prototype` and `/ecc` still work. Neither was used from 23 September
+  to 20 October, and `CLAUDE.md` does not point at them. On the rest of the
+  report's "installed, not used" list, 14 skills were already hidden, 5 are
+  named in `CLAUDE.md`, `tdd` calls `codebase-design`, `research` was used on
+  22 October, and 4 skills are new.
+- **Measured:** a fresh session's first call read about 44,700 tokens. In
+  side-by-side runs, the `CLAUDE.md` cut saves about 380 tokens and the two
+  hidden skills about 240: 620 in all, or 1.4%. No study has tested personal
+  `CLAUDE.md` files, so this is an experiment. If review results or session
+  cost get worse over the next two weeks, revert it.
 
 **2026-10-20.** These changes come from the Agents Home report for 23 September
 to 20 October (396 helper runs) and from the session transcripts.
